@@ -1,4 +1,5 @@
 "use strict";
+// Demo Typescript Client with Random Strategy
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -26,10 +27,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Colyseus = __importStar(require("colyseus.js")); // not necessary if included via <script> tag.
-const types_1 = require("../types");
+const Colyseus = __importStar(require("colyseus.js"));
+const types_1 = require("../../types");
 const Random_1 = __importDefault(require("./Random"));
-const client = new Colyseus.Client("ws://localhost:2567");
+const client = new Colyseus.Client("ws://localhost:22222");
 client
     .joinOrCreate("bandit", {
     name: "Random Client",

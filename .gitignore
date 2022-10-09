@@ -3,3 +3,4 @@ node_modules
 loadtest.log.bkp
 pnpm-lock.yml
 .vscode/
+*.log

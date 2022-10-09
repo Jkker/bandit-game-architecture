@@ -1,5 +1,5 @@
 import appConfig from "../src/arena.config";
-import RandomClient from "../src/client/Random";
+import RandomClient from "../src/clients/typescript/Random";
 import {
   CasinoActionRequest,
   EndGameRequest,

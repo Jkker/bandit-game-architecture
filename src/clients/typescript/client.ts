@@ -1,10 +1,12 @@
-import * as Colyseus from "colyseus.js"; // not necessary if included via <script> tag.
+// Demo Typescript Client with Random Strategy
+
+import * as Colyseus from "colyseus.js";
 import {
   CasinoActionRequest,
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-} from "../types";
+} from "../../types";
 
 import RandomClient from "./Random";
 

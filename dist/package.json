@@ -35,6 +35,7 @@
     "@colyseus/arena": "^0.14.22",
     "@colyseus/monitor": "^0.14.20",
     "@colyseus/schema": "^1.0.40",
+    "argparse": "^2.0.1",
     "colyseus": "^0.14.20",
     "colyseus.js": "^0.14.13",
     "cors": "^2.8.5",

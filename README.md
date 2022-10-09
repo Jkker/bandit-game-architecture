@@ -1,5 +1,3 @@
-# Bandit Game Architecture for Heuristic Problem Solving 2022
-
 ## Getting Started
 
 1. [**Install NodeJS**](https://nodejs.org/en/download/)
@@ -30,8 +28,17 @@
     ```
 
 
-## Usage
+## Client Usage
 
+Clients use IPC socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
+
+- [Python Client](src/clients/python/client.py)
+- [Node Typescript Client](src/clients/typescript/client.ts) (no proxy required)
+- [Java Client](src/clients/java/Client.java) (WIP)
+- [C++ Client](src/clients/cpp/client.cpp) (WIP)
+
+
+## Documentation
 ### Swimlane Flowchart
 
 ![Swimlane Flowchart](docs/swimlane-flowchart.png)
@@ -65,3 +72,4 @@ The second client connected to the server is assigned the role of **PLAYER** and
 
 ## Contact
 
+Please add an issue if you have any questions or suggestions. You can also contact me at [jerryjia@nyu.edu](mailto:jerryjia@nyu.edu)
