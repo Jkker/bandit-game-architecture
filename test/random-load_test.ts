@@ -1,5 +1,5 @@
 import { Room, Client } from "colyseus.js";
-import RandomClient from "../src/clients/typescript/Random";
+import RandomClient from "../clients/typescript/Random";
 
 import {
   CasinoActionRequest,

@@ -13,5 +13,10 @@
   },
   "include": [
     "src",
+    "clients",
   ],
+  "exclude": [
+    "node_modules",
+    "dist",
+  ]
 }

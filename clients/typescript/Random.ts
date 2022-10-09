@@ -4,7 +4,7 @@ import {
   EndGameRequest,
   PlayerActionRequest,
   PlayerActionResponse,
-} from "../../types";
+} from "../../src/types";
 
 // Both min and max are inclusive
 function getRandomInt(min: number, max: number) {
