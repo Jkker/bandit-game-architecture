@@ -1,7 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * IMPORTANT:
@@ -15,5 +17,5 @@ const arena_1 = require("@colyseus/arena");
 // Import arena config
 const arena_config_1 = __importDefault(require("./arena.config"));
 const config_1 = require("./config");
-// Create and listen on 2567 (or PORT environment variable.)
+// Create and listen on 22222 (or PORT environment variable.)
 (0, arena_1.listen)(arena_config_1.default, config_1.PORT);

@@ -6,7 +6,7 @@ import {
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-} from "../../src/types";
+} from "../../server/types";
 
 import RandomClient from "./Random";
 

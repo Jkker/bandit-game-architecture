@@ -1,11 +1,11 @@
-import appConfig from "../src/arena.config";
+import appConfig from "../server/arena.config";
 import RandomClient from "../clients/typescript/Random";
 import {
   CasinoActionRequest,
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-} from "../src/types";
+} from "../server/types";
 import { boot, ColyseusTestServer } from "@colyseus/testing";
 
 const randomClient = new RandomClient();

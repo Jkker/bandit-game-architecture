@@ -2,7 +2,7 @@ const net = require("net");
 const Colyseus = require("colyseus.js");
 
 const unixSocketPath = process.argv[2] ?? "/tmp/bandit.sock";
-const serverURI = process.argv[3] ?? "ws://localhost:2567";
+const serverURI = process.argv[3] ?? "ws://localhost:22222";
 console.log(`🚀 ~ file: ipc.js ~ line 7 ~ serverURI`, serverURI);
 
 // if (fs.existsSync(unixSocketPath)) {
