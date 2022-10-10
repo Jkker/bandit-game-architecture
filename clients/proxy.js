@@ -3,47 +3,42 @@ const Colyseus = require("colyseus.js");
 
 const unixSocketPath = process.argv[2] ?? "/tmp/bandit.sock";
 const serverURI = process.argv[3] ?? "ws://localhost:22222";
-console.log(`🚀 ~ file: ipc.js ~ line 7 ~ serverURI`, serverURI);
+const name = process.argv[4] ?? "anonymous";
 
-// if (fs.existsSync(unixSocketPath)) {
-//   console.log("Removing existing socket file");
-//   fs.unlinkSync(unixSocketPath);
-// }
+const proxyServer = net.createServer((ipcSock) => {
+  const gameClient = new Colyseus.Client(serverURI);
 
-var ipcServer = net.createServer((sock) => {
-  const client = new Colyseus.Client(serverURI);
+  ipcSock.setEncoding("utf8");
 
-  const send = (type, data = {}) => sock.write(JSON.stringify({ type, data }));
-
-  sock.setEncoding("utf8");
-
-  client
+  gameClient
     .joinOrCreate("bandit", {
-      name: "Random Client",
+      name,
     })
     .then((room) => {
-      // sock.write(JSON.stringify({ type: "connected" }));
-      send("server connected");
-
+      // On message from game server, send to client
       room.onMessage("*", (type, data) => {
-        sock.write(JSON.stringify({ type, data }));
+        ipcSock.write(JSON.stringify({ type, data }));
+      });
+
+      // On message from client, send to game server
+      ipcSock.on("data", (chunk) => {
+        const { type, data } = JSON.parse(chunk);
+        room.send(type, data);
+      });
+
+      // On client disconnect, leave game server
+      ipcSock.on("end", () => {
+        console.log("PROXY: client disconnected");
+        room.leave();
       });
     })
     .catch((e) => {
-      console.log("ERROR", e);
-      sock.write(JSON.stringify({ type: "error", data: e }));
+      console.log("PROXY ERROR", e);
+      ipcSock.write(JSON.stringify({ type: "error", data: e }));
     });
-
-  sock.on("end", () => {
-    console.log("client disconnected");
-  });
-
-  sock.on("data", (chunk) => {
-    sock.write(chunk);
-  });
 });
 
-ipcServer.on("listening", () => {
-  console.log(`CLIENT LAUNCHED`);
+proxyServer.on("listening", () => {
+  console.log(`PROXY LISTENING ON ${unixSocketPath}`);
 });
-ipcServer.listen(unixSocketPath);
+proxyServer.listen(unixSocketPath);
