@@ -1,9 +1,12 @@
 const net = require("net");
 const Colyseus = require("colyseus.js");
+const fs = require("fs");
 
 const unixSocketPath = process.argv[2] ?? "/tmp/bandit.sock";
 const serverURI = process.argv[3] ?? "ws://localhost:22222";
 const name = process.argv[4] ?? "anonymous";
+
+fs.unlinkSync(unixSocketPath);
 
 const proxyServer = net.createServer((ipcSock) => {
   const gameClient = new Colyseus.Client(serverURI);
@@ -23,7 +26,7 @@ const proxyServer = net.createServer((ipcSock) => {
       // On message from client, send to game server
       ipcSock.on("data", (chunk) => {
         const { type, data } = JSON.parse(chunk);
-        room.send(type, data);
+        if (type && data) room.send(type, data);
       });
 
       // On client disconnect, leave game server
@@ -42,3 +45,5 @@ proxyServer.on("listening", () => {
   console.log(`PROXY LISTENING ON ${unixSocketPath}`);
 });
 proxyServer.listen(unixSocketPath);
+
+process.on("exit", () => fs.unlinkSync(unixSocketPath).catch(() => {}));

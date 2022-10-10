@@ -28,17 +28,7 @@
     ```
 
 
-## Client Usage
-
-Clients use IPC socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
-
-- [Python Random Client](clients/python/random_client.py)
-- [Node Typescript Client](clients/typescript/client.ts) (no proxy required)
-- [Java Client](clients/java/Client.java) (WIP)
-- [C++ Client](clients/cpp/client.cpp) (WIP)
-
-
-## Documentation
+## About
 ### Swimlane Flowchart
 
 ![Swimlane Flowchart](docs/swimlane-flowchart.png)
@@ -70,9 +60,42 @@ The first client connected to the server is assigned the role of **CASINO** and 
 
 The second client connected to the server is assigned the role of **PLAYER** and will receive the `AWAIT_PLAYER` event. It must respond with the `PULL` event to start the game loop.
 
-## Contact
+## Client Usage
 
-Please add an issue if you have any questions or suggestions. You can also contact me at [jerryjia@nyu.edu](mailto:jerryjia@nyu.edu)
+Clients use Unix Domain Socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
+
+
+### Python
+[Python Random Client](clients/python/random_client.py)
+
+[Client Template](clients/python/your_client.py)
+
+```sh
+python3 clients/python/your_client.py
+```
+
+### Java
+
+[Java Client](clients/java/Client.java): Developed and tested with Java 17
+
+```sh
+cd clients/java
+chmod +x run.sh
+./run.sh
+```
+
+You can edit `run.sh` to change variables like `PATH_TO_SOCKET_FILE`, `GAME_SERVER_URI`, and `CLIENT_NAME`
+
+### Typescript (NodeJS)
+
+[Node Typescript Client](clients/typescript/client.ts) (no proxy required)
+
+### C++ (g++)
+
+[C++ Client](clients/cpp/client.cpp) (WIP)
+
+
+
 
 ## Development
 
@@ -85,3 +108,8 @@ Please add an issue if you have any questions or suggestions. You can also conta
 - `dist` - compiled server code
 - `arena.env` - production environment variables
 - `development.env` - development environment variables
+
+
+## Contact
+
+Please add an issue if you have any questions or suggestions. You can also contact me at [jerryjia@nyu.edu](mailto:jerryjia@nyu.edu)

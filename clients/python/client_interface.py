@@ -71,7 +71,7 @@ class BanditClientInterface:
         Please do not override this method; override `casino_action_init`, `casino_action`, and `player_action` methods to implement your game play logic.
 
         Args:
-            message (_type_): _description_
+            message (str): message received from the game server
         """
         msg = json.loads(message)
 
