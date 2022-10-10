@@ -74,7 +74,7 @@ python3 clients/python/your_client.py
 
 [clients/java/Client.java](clients/java/Client.java): Developed and tested with Java 17
 
-The Proxy server is required to be running before the client can connect to it. `run.sh` includes the command to run the proxy server alongside your Java client.
+The Proxy server is required to be running before the client can connect to it. `run.sh` includes the command to run the proxy server alongside your C++ client.
 
 
 ```sh
