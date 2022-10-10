@@ -137,6 +137,8 @@ class VsRandomCasino extends colyseus_1.Room {
             return playerClient.error(401, "You are not the player");
         if (message.stake > this.player_wealth)
             return playerClient.error(400, `Player pull stake ${message.stake} exceeded current wealth of ${this.player_wealth}`);
+        if (message.stake > config_1.MAX_PULL_STAKE)
+            return playerClient.error(400, `Player pull stake ${message.stake} exceeded max stake of 3`);
         if (this.pull_budget <= 0)
             return this.end(`Player ran out of pull budget of ${config_1.INIT_PULL_BUDGET}`);
         if (!message.slot || !message.stake)

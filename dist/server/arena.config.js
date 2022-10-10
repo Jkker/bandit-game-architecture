@@ -26,7 +26,7 @@ exports.default = (0, arena_1.default)({
          * Bind your custom express routes here:
          */
         app.get("/", (req, res) => {
-            res.send("It's time to kick ass and chew bubblegum!");
+            res.redirect("https://github.com/Jkker/bandit-game-architecture");
         });
         /**
          * Bind @colyseus/monitor
