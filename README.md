@@ -1,3 +1,21 @@
+## Table of Content
+- [Getting Started](#getting-started)
+- [Client Usage](#client-usage)
+  - [Python](#python)
+  - [Java](#java)
+  - [C++](#c)
+  - [Typescript (NodeJS)](#typescript-nodejs)
+- [Proxy Usage](#proxy-usage)
+  - [Positional Arguments](#positional-arguments)
+  - [Example Usage](#example-usage)
+- [Development](#development)
+  - [Swimlane Flowchart](#swimlane-flowchart)
+  - [WebSocket Events](#websocket-events)
+  - [Specifications](#specifications)
+  - [Roles](#roles)
+  - [Directories](#directories)
+- [Contact](#contact)
+
 ## Getting Started
 
 1. [**Install NodeJS**](https://nodejs.org/en/download/)
@@ -11,14 +29,7 @@
     ```sh
     npm install
     ```
-4. **Configure Environment Variables** (optional)
-
-   You can edit `SLOT_COUNT (s)`, `SWITCH_BUDGET (k)`, and `PORT` in `development.env`.
-    ```sh
-    cp .env.example .env
-    nano .env  # or vim .env
-    ```
-5. **Run the server**
+4. **Run the server**
     ```sh
     npm run start
     ```
@@ -26,16 +37,100 @@
     ```sh
     SLOT_COUNT=3 SWITCH_BUDGET=10 PORT=8080 npm run start
     ```
+5. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for details)
+
+6. **Run the proxy** (see [Proxy Usage](#proxy-usage) for details)
+   ```sh
+    npm run proxy
+    ```
+7. **Run your client**
+    ```sh
+     python3 clients/python/random_client.py
+     ```
 
 
-## About
+
+
+## Client Usage
+
+Clients use Unix Domain Socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
+
+
+### Python
+
+The Python 3 client takes care of launching the proxy server via `subprocess`. All you need to do is to implement the `casino_action_init`, `casino_action`, and `player_action` methods.
+
+[clients/python/random_client.py](clients/python/random_client.py)
+
+[clients/python/your_client.py](clients/python/your_client.py)
+
+```sh
+python3 clients/python/your_client.py
+```
+
+### Java
+
+[clients/java/Client.java](clients/java/Client.java): Developed and tested with Java 17
+
+The Proxy server is required to be running before the client can connect to it. `run.sh` includes the command to run the proxy server alongside your Java client.
+
+
+```sh
+cd clients/java
+chmod +x run.sh
+./run.sh
+```
+
+### C++
+
+The Proxy server is required to be running before the client can connect to it. `run.sh` includes the command to run the proxy server alongside your Java client.
+
+
+[clients/cpp/client.cpp](clients/cpp/client.cpp)
+
+```sh
+cd clients/cpp
+g++ client.cpp -o client.out -std=c++17
+chmod +x run.sh
+./run.sh
+```
+
+### Typescript (NodeJS)
+
+[clients/typescript/client.ts](clients/typescript/client.ts) (no proxy required)
+
+## Proxy Usage
+
+The proxy server is a NodeJS application that takes care of authentication, matchmaking, and communication with the game server. It uses Unix Domain Socket to communicate with the clients.
+
+
+### Positional Arguments
+
+| Argument         | Description                                                                      |
+| ---------------- | -------------------------------------------------------------------------------- |
+| `unixSocketPath` | Path to the Unix Domain Socket that the proxy will listen for client connections |
+| `serverURI`      | URI of the game server                                                           |
+| `name`           | Name of the client                                                               |
+| `debug`          | If `true`, Print debug messages to the console                                   |
+
+### Example Usage
+
+```sh
+node clients/proxy.js
+# OR with arguments
+node clients/proxy.js /tmp/bandit.sock ws://localhost:22222/ "Awesome Team" true
+```
+
+
+## Development
+
 ### Swimlane Flowchart
 
 ![Swimlane Flowchart](docs/swimlane-flowchart.png)
 
 ### WebSocket Events
 
-| Event               | Sender | Receiver | Payload                                                                              |
+| Type                | Sender | Receiver | Data                                                                                 |
 | ------------------- | ------ | -------- | ------------------------------------------------------------------------------------ |
 | `AWAIT_CASINO_INIT` | Server | Casino   | `{ switch_budget: int, slot_count: int, player_wealth: int }`                        |
 | `AWAIT_CASINO`      | Server | Casino   | `{ switch_budget: int, slot_count: int, player_wealth: int, player_switched: bool }` |
@@ -59,45 +154,6 @@ For simplicity, your client should listen for ALL events. The server will only s
 The first client connected to the server is assigned the role of **CASINO** and will receive the `AWAIT_CASINO_INIT` event. It must respond with the `SWITCH` event to initialize the winning slot. The server will send `AWAIT_CASINO` to the casino after the player gambles at a slot. The casino must respond with the `SWITCH` event whether it wants to update the winning slot or not.
 
 The second client connected to the server is assigned the role of **PLAYER** and will receive the `AWAIT_PLAYER` event. It must respond with the `PULL` event to start the game loop.
-
-## Client Usage
-
-Clients use Unix Domain Socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
-
-
-### Python
-[Python Random Client](clients/python/random_client.py)
-
-[Client Template](clients/python/your_client.py)
-
-```sh
-python3 clients/python/your_client.py
-```
-
-### Java
-
-[Java Client](clients/java/Client.java): Developed and tested with Java 17
-
-```sh
-cd clients/java
-chmod +x run.sh
-./run.sh
-```
-
-You can edit `run.sh` to change variables like `PATH_TO_SOCKET_FILE`, `GAME_SERVER_URI`, and `CLIENT_NAME`
-
-### Typescript (NodeJS)
-
-[Node Typescript Client](clients/typescript/client.ts) (no proxy required)
-
-### C++ (g++)
-
-[C++ Client](clients/cpp/client.cpp) (WIP)
-
-
-
-
-## Development
 
 ### Directories
 

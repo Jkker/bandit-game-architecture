@@ -55,9 +55,9 @@ client
         console.log(types_1.MESSAGE.PULL, action);
         room.send(types_1.MESSAGE.PULL, action);
     });
-    room.onMessage(types_1.MESSAGE.END, (data) => {
-        console.warn(`🛑 Game Ended`, data);
-        randomClient.end(data);
+    room.onMessage(types_1.MESSAGE.GAME_OVER, (data) => {
+      console.warn(`🛑 Game Ended`, data);
+      randomClient.end(data);
     });
 })
     .catch((e) => {

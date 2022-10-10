@@ -90,8 +90,8 @@ class MyRoom extends colyseus_1.Room {
     }
     onLeave(client, consented) {
         console.log(client.sessionId, "left!");
-        this.broadcast(types_1.MESSAGE.END, {
-            player_wealth: this.player_wealth,
+        this.broadcast(types_1.MESSAGE.GAME_OVER, {
+          player_wealth: this.player_wealth,
         });
     }
     onDispose() {
@@ -124,7 +124,7 @@ class MyRoom extends colyseus_1.Room {
             reason,
         };
         console.log("🛑 GAME ENDED", payload);
-        this.broadcast(types_1.MESSAGE.END, payload);
+        this.broadcast(types_1.MESSAGE.GAME_OVER, payload);
         this.disconnect();
     }
     // END_SECTION Event Emitters

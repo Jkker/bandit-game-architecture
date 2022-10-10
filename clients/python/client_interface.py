@@ -7,6 +7,7 @@ import subprocess
 import os
 import time
 
+
 class BanditClientInterface:
     """Bandit Game Python 3 Client Template
     """
@@ -55,6 +56,7 @@ class BanditClientInterface:
         time.sleep(0.1)
         self.sock.connect(unix_socket_path)
         if self.debug: print('✅ Successfully connected to proxy')
+        self.send('CONNECTED', self.name)
 
         # Register exit handler
         atexit.register(self.exit)
@@ -98,7 +100,7 @@ class BanditClientInterface:
 
             self.send('PULL', {"slot": slot, "stake": stake})
 
-        elif type == 'END':
+        elif type == 'GAME_OVER':
             print('🛑 GAME ENDED:', data)
             self.exit()
             os._exit(0)

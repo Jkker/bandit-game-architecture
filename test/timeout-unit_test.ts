@@ -33,7 +33,7 @@ const initClient = (room: any) => {
     setTimeout(() => room.send(MESSAGE.PULL, action), 1000);
   });
 
-  room.onMessage(MESSAGE.END, (data: EndGameRequest) => {
+  room.onMessage(MESSAGE.GAME_OVER, (data: EndGameRequest) => {
     console.warn(`🛑 Game Ended`, data);
     randomClient.end(data);
   });
@@ -60,8 +60,8 @@ describe("Timeout Unit Test", function () {
     initClient(player);
 
     await Promise.race([
-      casino.waitForMessage(MESSAGE.END),
-      player.waitForMessage(MESSAGE.END),
+      casino.waitForMessage(MESSAGE.GAME_OVER),
+      player.waitForMessage(MESSAGE.GAME_OVER),
     ]);
   });
 });

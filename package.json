@@ -10,7 +10,8 @@
     "loadtest": "colyseus-loadtest test/random-load_test.ts --room bandit --numClients 100 --endpoint ws://localhost:22222",
     "build": "node node_modules/rimraf/bin dist && tsc && node node_modules/copyfiles/copyfiles package.json ./dist && node node_modules/copyfiles/copyfiles *.env ./dist",
     "clean": "node node_modules/rimraf/bin *.log *.bkp",
-    "test": "mocha --require ts-node/register test/**-unit_test.ts --exit --timeout 15000"
+    "test": "mocha --require ts-node/register test/**-unit_test.ts --exit --timeout 15000",
+    "proxy": "node clients/proxy.js"
   },
   "author": "Jkker",
   "license": "MIT",

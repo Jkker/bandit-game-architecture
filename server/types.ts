@@ -3,7 +3,7 @@ export enum MESSAGE {
   AWAIT_CASINO = "AWAIT_CASINO",
   AWAIT_PLAYER = "AWAIT_PLAYER",
 
-  END = "END",
+  GAME_OVER = "GAME_OVER",
 
   PULL = "PULL",
   SWITCH = "SWITCH",

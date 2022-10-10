@@ -32,7 +32,7 @@ const initClient = (room: any) => {
     room.send(MESSAGE.PULL, action);
   });
 
-  room.onMessage(MESSAGE.END, (data: EndGameRequest) => {
+  room.onMessage(MESSAGE.GAME_OVER, (data: EndGameRequest) => {
     console.warn(`🛑 Game Ended`, data);
     randomClient.end(data);
   });
@@ -56,8 +56,8 @@ describe("Random Client Unit Test", () => {
     initClient(player);
 
     await Promise.race([
-      casino.waitForMessage(MESSAGE.END),
-      player.waitForMessage(MESSAGE.END),
+      casino.waitForMessage(MESSAGE.GAME_OVER),
+      player.waitForMessage(MESSAGE.GAME_OVER),
     ]);
   });
 });

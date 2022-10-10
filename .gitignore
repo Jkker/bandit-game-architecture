@@ -5,3 +5,4 @@ pnpm-lock.yml
 .vscode/
 *.log
 __pycache__
+*.out

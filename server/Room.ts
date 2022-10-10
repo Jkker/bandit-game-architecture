@@ -119,7 +119,7 @@ export class MyRoom extends Room<State> {
 
   onLeave(client: Client, consented: boolean) {
     console.log(client.sessionId, "left!");
-    this.broadcast(MESSAGE.END, {
+    this.broadcast(MESSAGE.GAME_OVER, {
       player_wealth: this.player_wealth,
     });
   }
@@ -158,7 +158,7 @@ export class MyRoom extends Room<State> {
       reason,
     };
     console.log("🛑 GAME ENDED", payload);
-    this.broadcast(MESSAGE.END, payload);
+    this.broadcast(MESSAGE.GAME_OVER, payload);
     this.disconnect();
   }
   // END_SECTION Event Emitters

@@ -35,26 +35,11 @@ public class Client {
       channel = SocketChannel
           .open(StandardProtocolFamily.UNIX);
       channel.connect(address);
+      send("CONNECTED", 0);
       System.out.println("Connected to " + address);
     } catch (Exception e) {
       System.out.println(e);
     }
-  }
-
-  public void start() {
-    /*
-     * Start the client
-     *
-     * Launches the proxy server to establish a connection to the game server
-     *
-     * Args:
-     * unix_socket_path (str, optional): path to a temp file for the unix domain
-     * socket. Defaults to `/tmp/bandit.sock`. If the file already exists, a new
-     * file will be created with a random suffix.
-     * server_uri (str, optional): uri to the game server. Defaults to
-     * "ws://localhost:22222".
-     */
-
   }
 
   private void send(
@@ -151,9 +136,14 @@ public class Client {
           break;
         case "AWAIT_PLAYER":
           JSONObject player_action = this.player_action(data.getInteger("player_wealth"),
-              data.getInteger("player_switched"),
-              data.getInteger("player_stake"));
+              data.getInteger("slot_count"),
+              data.getInteger("pull_budget"));
           this.send("PLAYER_ACTION", player_action);
+          break;
+        case "GAME_OVER":
+          System.out.println("GAME OVER");
+          // channel.close();
+          // System.exit(0);
           break;
         default:
           break;
@@ -221,7 +211,7 @@ public class Client {
   }
 
   public static void main(String[] args) {
-    Client client = new Client("/tmp/bandit-java.sock", "java_client", true);
+    Client client = new Client("/tmp/bandit.sock", "java_client", true);
 
     try {
       while (true) {

@@ -32,7 +32,7 @@ const initClient = (room: any) => {
     room.send(MESSAGE.PULL, action);
   });
 
-  room.onMessage(MESSAGE.END, (data: EndGameRequest) => {
+  room.onMessage(MESSAGE.GAME_OVER, (data: EndGameRequest) => {
     console.warn(`🛑 Game Ended`, data);
     randomClient.end(data);
   });
