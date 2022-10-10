@@ -9,6 +9,7 @@ import {
   SLOT_COUNT,
   TIME_LIMIT,
   WIN_RATE,
+  MAX_PULL_STAKE,
 } from "./config";
 
 import {
@@ -174,6 +175,12 @@ export class VsRandomCasino extends Room<State> {
       return playerClient.error(
         400,
         `Player pull stake ${message.stake} exceeded current wealth of ${this.player_wealth}`
+      );
+
+    if (message.stake > MAX_PULL_STAKE)
+      return playerClient.error(
+        400,
+        `Player pull stake ${message.stake} exceeded max stake of 3`
       );
 
     if (this.pull_budget <= 0)

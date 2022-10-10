@@ -11,6 +11,8 @@ const SLOT_COUNT = parseInt(process.env.SLOT_COUNT, 10) || 20; // k <= s/7 <= 14
 const INIT_PLAYER_WEALTH = SLOT_COUNT * 500;
 const INIT_PULL_BUDGET = SLOT_COUNT * 100;
 
+const MAX_PULL_STAKE = 3;
+
 const TIME_LIMIT = 2 * 60 * 1000; // 2 minutes
 // const TIME_LIMIT = 2 * 1000;
 
@@ -27,4 +29,5 @@ export {
   INIT_PULL_BUDGET,
   TIME_LIMIT,
   PORT,
+  MAX_PULL_STAKE,
 };
