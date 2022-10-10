@@ -91,7 +91,7 @@ class MyRoom extends colyseus_1.Room {
     onLeave(client, consented) {
         console.log(client.sessionId, "left!");
         this.broadcast(types_1.MESSAGE.GAME_OVER, {
-          player_wealth: this.player_wealth,
+            player_wealth: this.player_wealth,
         });
     }
     onDispose() {
