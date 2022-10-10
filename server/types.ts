@@ -33,3 +33,8 @@ export interface EndGameRequest {
   player_wealth: number;
   reason?: string;
 }
+
+// Both min and max are inclusive
+export function getRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max + 1 - min) + min);
+}

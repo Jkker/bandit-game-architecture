@@ -21,13 +21,14 @@ class Client
 public:
 	string socket_path;
 	string name;
+	string room;
 	int sock = 0;
 	int data_len = 0;
 	struct sockaddr_un remote;
 	char recv_msg[s_recv_len];
 
 	~Client();
-	Client(string name, string socket_path, string server_uri);
+	Client(string name, string socket_path, string server_uri, string room);
 
 	void start();
 	void send_data(string msg);
@@ -38,17 +39,21 @@ public:
 	pair<int, int> player_action(int player_wealth, int slot_count, int pull_budget) { return make_pair(0, 0); }
 };
 
-Client::Client(string name, string socket_path, string server_uri)
+Client::Client(string name, string socket_path, string server_uri, string room)
+
 /*
  * Bandit Game C++ Client
  *
  * Args:
  * socket_path (str): path to a temp file for the unix domain socket.
  * name (str, optional): client name. Defaults to "python_client".
+ * server_uri (str, optional): server uri.
+ * room (str, optional): room type ("pvp", "vs_random_player", "vs_random_casino").
  *
  */
 {
 	this->name = name;
+	this->room = room;
 	this->socket_path = socket_path;
 
 	memset(recv_msg, 0, s_recv_len * sizeof(char));
@@ -72,7 +77,7 @@ Client::Client(string name, string socket_path, string server_uri)
 
 	printf("CLIENT: Connected \n");
 
-	this->send_data(json({{"type", "CONNECTED"}, {"data", 0}}).dump());
+	this->send_data(json({{"type", "CONNECTED"}, {"data", {{"name", this->name}, {"server_uri", server_uri}, {"room", room}, {"debug", true}}}}).dump());
 }
 
 Client::~Client()
@@ -158,7 +163,8 @@ int main()
 	string socket_path = "/tmp/bandit.sock";
 	string server_uri = "ws://localhost:22222";
 
-	Client client(name, socket_path, server_uri);
+	// Room Types: "pvp", "vs_random_player", "vs_random_casino"
+	Client client(name, socket_path, server_uri, "vs_random_player");
 	client.start();
 
 	return 0;

@@ -76,4 +76,6 @@ class RandomClient(BanditClientInterface):
 
 if __name__ == '__main__':
     client = RandomClient(debug=True)
-    client.start()
+
+	# Room Types: "pvp", "vs_random_player", "vs_random_casino"
+    client.start(room="vs_random_player")

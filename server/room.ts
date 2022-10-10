@@ -233,7 +233,7 @@ export class MyRoom extends Room<State> {
       return this.end(`Player ran out of pull budget of ${INIT_PULL_BUDGET}`);
 
     if (!message.slot || !message.stake)
-      return this.end(`Player decided to stopped`);
+      return this.end(`Player decided to stop`);
 
     if (message.slot > SLOT_COUNT || message.slot < 1)
       return playerClient.error(

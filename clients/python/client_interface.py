@@ -26,7 +26,8 @@ class BanditClientInterface:
 
     def start(self,
               unix_socket_path='/tmp/bandit.sock',
-              server_uri="ws://localhost:22222") -> None:
+              server_uri="ws://localhost:22222",
+              room="vs_random_player") -> None:
         """Start the client
 
         Launches the proxy server to establish a connection to the game server
@@ -34,29 +35,32 @@ class BanditClientInterface:
         Args:
             unix_socket_path (str, optional): path to a temp file for the unix domain socket. Defaults to `/tmp/bandit.sock`. If the file already exists, a new file will be created with a random suffix.
             server_uri (str, optional): uri to the game server. Defaults to "ws://localhost:22222".
+            room (str, optional): room to join ("pvp", "vs_random_player", "vs_random_casino"). Defaults to "vs_random_player".
         """
-        if os.path.exists(unix_socket_path):
-            # os.remove(unix_socket_path)
-            self.unix_socket_path = unix_socket_path + "." + str(time.time())
-            if self.debug: print("unix_socket_path", self.unix_socket_path)
+        # if os.path.exists(unix_socket_path):
+        #     # os.remove(unix_socket_path)
+        #     self.unix_socket_path = unix_socket_path + "." + str(time.time())
+        #     if self.debug: print("unix_socket_path", self.unix_socket_path)
 
-        else:
-            self.unix_socket_path = unix_socket_path
+        # else:
+        self.unix_socket_path = unix_socket_path
 
         # Pipe stdout to /dev/null; stderr are printed to console
         # stdout is displayed if debug mode is enabled
         self.client_process = subprocess.Popen(
-            [
-                'node', 'clients/proxy.js', self.unix_socket_path, server_uri,
-                self.name
-            ],
+            ['node', 'clients/proxy.js', self.unix_socket_path],
             stdout=None if self.debug else subprocess.DEVNULL,
         )
 
         time.sleep(0.1)
         self.sock.connect(unix_socket_path)
         if self.debug: print('✅ Successfully connected to proxy')
-        self.send('CONNECTED', self.name)
+        self.send('CONNECTED', {
+            "name": self.name,
+            "server_uri": server_uri,
+            "room": room,
+            "debug": self.debug
+        })
 
         # Register exit handler
         atexit.register(self.exit)

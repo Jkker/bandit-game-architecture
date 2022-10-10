@@ -178,7 +178,7 @@ class MyRoom extends colyseus_1.Room {
         if (this.pull_budget <= 0)
             return this.end(`Player ran out of pull budget of ${config_1.INIT_PULL_BUDGET}`);
         if (!message.slot || !message.stake)
-            return this.end(`Player decided to stopped`);
+            return this.end(`Player decided to stop`);
         if (message.slot > config_1.SLOT_COUNT || message.slot < 1)
             return playerClient.error(400, `Player pull slot ${message.slot} is not in range [1,${config_1.SLOT_COUNT}]`);
         console.log("🕹️", types_1.MESSAGE.PULL, message);

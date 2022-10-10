@@ -47,7 +47,7 @@ describe("Random Client Unit Test", () => {
 
   it("Run Game", async () => {
     // `room` is the server-side Room instance reference.
-    const room = await colyseus.createRoom("bandit", {});
+    const room = await colyseus.createRoom("pvp", {});
 
     // `client1` is the client-side `Room` instance reference (same as JavaScript SDK)
     const casino = await colyseus.connectTo(room, { name: "P1" });

@@ -48,6 +48,8 @@
      python3 clients/python/random_client.py
      ```
 
+  ℹ️ **Note**: change `room` to `vs_random_casino` or `vs_random_player` to play against a random casino or random player respectively (see [WebSocket Events](#websocket-events) for details)
+
 
 
 
@@ -132,11 +134,12 @@ node clients/proxy.js /tmp/bandit.sock ws://localhost:22222/ "Awesome Team" true
 
 | Type                | Sender | Receiver | Data                                                                                 |
 | ------------------- | ------ | -------- | ------------------------------------------------------------------------------------ |
-| `AWAIT_CASINO_INIT` | Server | Casino   | `{ switch_budget: int, slot_count: int, player_wealth: int }`                        |
-| `AWAIT_CASINO`      | Server | Casino   | `{ switch_budget: int, slot_count: int, player_wealth: int, player_switched: bool }` |
-| `SWITCH`            | Casino | Server   | `{ winning_slot: int }`                                                              |
-| `AWAIT_PLAYER`      | Server | Player   | `{ player_wealth: int, slot_count: int, pull_budget: int }`                          |
-| `PULL`              | Player | Server   | `{ slot: int, stake: int }`                                                          |
+| `CONNECTION`        | Client | Proxy    | `{ name: str, server_uri: str, room: str, debug: bool }`                             |
+| `AWAIT_CASINO_INIT` | Proxy  | Casino   | `{ switch_budget: int, slot_count: int, player_wealth: int }`                        |
+| `AWAIT_CASINO`      | Proxy  | Casino   | `{ switch_budget: int, slot_count: int, player_wealth: int, player_switched: bool }` |
+| `SWITCH`            | Casino | Proxy    | `{ winning_slot: int }`                                                              |
+| `AWAIT_PLAYER`      | Proxy  | Player   | `{ player_wealth: int, slot_count: int, pull_budget: int }`                          |
+| `PULL`              | Player | Proxy    | `{ slot: int, stake: int }`                                                          |
 
 ### Specifications
 

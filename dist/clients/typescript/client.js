@@ -32,7 +32,7 @@ const types_1 = require("../../server/types");
 const Random_1 = __importDefault(require("./Random"));
 const client = new Colyseus.Client("ws://localhost:22222");
 client
-    .joinOrCreate("bandit", {
+    .joinOrCreate("vs_random_casino", {
     name: "Random Client",
 })
     .then((room) => {

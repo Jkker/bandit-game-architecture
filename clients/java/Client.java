@@ -15,13 +15,14 @@ public class Client {
   private UnixDomainSocketAddress address = null;
   private boolean debug = false;
 
-  Client(String socketPath, String name, boolean debug) {
+  Client(String socketPath, String name, String room, boolean debug) {
     /*
      * Bandit Game Java-17 Client
      *
      * Args:
      * socketPath (str): path to a temp file for the unix domain socket.
-     * name (str, optional): client name. Defaults to "python_client".
+     * name (str): client name. Defaults to "python_client".
+     * room (str): room type ("pvp", "vs_random_player", "vs_random_casino").
      *
      */
 
@@ -35,7 +36,14 @@ public class Client {
       channel = SocketChannel
           .open(StandardProtocolFamily.UNIX);
       channel.connect(address);
-      send("CONNECTED", 0);
+
+      JSONObject request = new JSONObject();
+      request.put("name", name);
+      request.put("room", room);
+      request.put("debug", debug);
+      request.put("server_uri", "ws://localhost:22222");
+
+      send("CONNECTED", request);
       System.out.println("Connected to " + address);
     } catch (Exception e) {
       System.out.println(e);
@@ -142,8 +150,8 @@ public class Client {
           break;
         case "GAME_OVER":
           System.out.println("GAME OVER");
-          // channel.close();
-          // System.exit(0);
+          channel.close();
+          System.exit(0);
           break;
         default:
           break;
@@ -211,7 +219,8 @@ public class Client {
   }
 
   public static void main(String[] args) {
-    Client client = new Client("/tmp/bandit.sock", "java_client", true);
+    // Room Types: "pvp", "vs_random_player", "vs_random_casino"
+    Client client = new Client("/tmp/bandit.sock", "java_client", "vs_random_player", true);
 
     try {
       while (true) {

@@ -4,7 +4,9 @@ import { monitor } from "@colyseus/monitor";
 /**
  * Import your Room files
  */
-import { MyRoom } from "./Room";
+import { MyRoom } from "./room";
+import { VsRandomPlayer } from "./vsRandomPlayer";
+import { VsRandomCasino } from "./vsRandomCasino";
 
 export default Arena({
   getId: () => "Bandit 2022",
@@ -13,7 +15,9 @@ export default Arena({
     /**
      * Define your room handlers:
      */
-    gameServer.define("bandit", MyRoom);
+    gameServer.define("pvp", MyRoom);
+    gameServer.define("vs_random_player", VsRandomPlayer);
+    gameServer.define("vs_random_casino", VsRandomCasino);
   },
 
   initializeExpress: (app) => {

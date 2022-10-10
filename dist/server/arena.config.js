@@ -8,14 +8,18 @@ const monitor_1 = require("@colyseus/monitor");
 /**
  * Import your Room files
  */
-const Room_1 = require("./Room");
+const room_1 = require("./room");
+const vsRandomPlayer_1 = require("./vsRandomPlayer");
+const vsRandomCasino_1 = require("./vsRandomCasino");
 exports.default = (0, arena_1.default)({
     getId: () => "Bandit 2022",
     initializeGameServer: (gameServer) => {
         /**
          * Define your room handlers:
          */
-        gameServer.define("bandit", Room_1.MyRoom);
+        gameServer.define("pvp", room_1.MyRoom);
+        gameServer.define("vs_random_player", vsRandomPlayer_1.VsRandomPlayer);
+        gameServer.define("vs_random_casino", vsRandomCasino_1.VsRandomCasino);
     },
     initializeExpress: (app) => {
         /**

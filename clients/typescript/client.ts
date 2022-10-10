@@ -13,7 +13,7 @@ import RandomClient from "./Random";
 const client = new Colyseus.Client("ws://localhost:22222");
 
 client
-  .joinOrCreate("bandit", {
+  .joinOrCreate("vs_random_casino", {
     name: "Random Client",
   })
   .then((room) => {

@@ -4,12 +4,8 @@ import {
   EndGameRequest,
   PlayerActionRequest,
   PlayerActionResponse,
+  getRandomInt,
 } from "../../server/types";
-
-// Both min and max are inclusive
-function getRandomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max + 1 - min) + min);
-}
 
 export default class RandomClient {
   casinoActionInit(data: CasinoActionRequest): CasinoActionResponse {
@@ -28,7 +24,7 @@ export default class RandomClient {
   playerAction(data: PlayerActionRequest): PlayerActionResponse {
     return {
       // 1 / SLOT_COUNT chance to stop playing if slot=0 is sent
-      slot: getRandomInt(0, data.slot_count),
+      slot: getRandomInt(0, Math.min(data.slot_count, data.player_wealth)),
       stake: getRandomInt(1, 3),
     };
   }
