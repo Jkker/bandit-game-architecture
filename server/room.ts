@@ -142,7 +142,7 @@ export class MyRoom extends Room<State> {
       end_reason: this.end_reason ?? 'Unknown',
     });
     await log.save();
-    console.log('📝 Saved Game Record');
+    console.log('📝 Saved Game Record', log.toObject());
   }
 
   async onDispose() {
