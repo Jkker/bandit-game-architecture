@@ -58,6 +58,7 @@ export class MyRoom extends Room<State> {
     stake: number;
   };
   end_reason?: string;
+  game_ended?: boolean = false;
 
   // END_SECTION Game States
 
@@ -126,10 +127,18 @@ export class MyRoom extends Room<State> {
   }
 
   onLeave(client: Client, consented: boolean) {
-    if (this.casino && this.casino.id === client.sessionId) {
+    if (
+      !this.game_ended &&
+      this.casino &&
+      this.casino.id === client.sessionId
+    ) {
       this.end(`Casino ${this.casino.name} Left`);
     }
-    if (this.player && this.player.id === client.sessionId) {
+    if (
+      !this.game_ended &&
+      this.player &&
+      this.player.id === client.sessionId
+    ) {
       this.end(`Player ${this.player.name} Left`);
     }
   }
@@ -177,6 +186,7 @@ export class MyRoom extends Room<State> {
   }
 
   end(reason?: string) {
+    this.game_ended = true;
     const payload: EndGameRequest = {
       player_wealth: this.player_wealth,
       reason,
