@@ -21,6 +21,8 @@ class Driver {
   server: Colyseus.Room;
   roomType: string;
   serverURI: string;
+  isPrivate: boolean;
+  roomId: string;
 
   // Client Process
   client: ChildProcessWithoutNullStreams;
@@ -38,11 +40,15 @@ class Driver {
       name,
       room,
       verbose,
+      isPrivate,
+      roomId,
     }: {
       serverURI?: string;
       name?: string;
       room?: string;
       verbose?: boolean;
+      isPrivate?: boolean;
+      roomId?: string;
     }
   ) {
     const cmdList = command.split(' ');
@@ -52,6 +58,8 @@ class Driver {
     this.name = name;
     this.serverURI = serverURI;
     this.roomType = room;
+    this.isPrivate = isPrivate;
+    this.roomId = roomId;
     this.verbose = verbose;
     this.executable = executable;
     this.args = cmdArgs;
@@ -59,8 +67,35 @@ class Driver {
   async connect() {
     try {
       const client = new Colyseus.Client(this.serverURI);
+      if (this.isPrivate) {
+        this.server = await client.create(this.roomType, {
+          name: this.name,
+          isPrivate: true,
+        });
+        log(
+          `✅ Created private room ${this.server.id} (use "-j ${this.server.id}" to join this room)`
+        );
+        return;
+      }
+      if (this.roomId) {
+        try {
+          this.server = await client.joinById(this.roomId, {
+            name: this.name,
+          });
+          log(`✅ Joined private room ${this.server.id}`);
+        } catch (e) {
+          log(
+            `Failed to join private room ${this.roomId}. Does this room ID exit?`,
+            e,
+            true
+          );
+          process.exit(1);
+        }
+        return;
+      }
       this.server = await client.joinOrCreate(this.roomType, {
         name: this.name,
+        isPrivate: this.isPrivate,
       });
       if (this.verbose) log(`✅ connected to game server`);
     } catch (e) {
@@ -88,17 +123,21 @@ class Driver {
 
     this.outFeed.on('line', (line) => {
       // if (this.verbose) log(`received from client`, line);
-      if (!line.startsWith('command:')) {
+      const trimmed = line.trim();
+
+      if (!trimmed.startsWith('command:')) {
         console.log(`💡 CLIENT: ${line}`);
         return;
       }
 
       try {
-        const arr = line
+        const arr = trimmed
           .slice(8) // replace 'command:' with ''
+          .trim()
           .split(' ')
           .map((s) => parseInt(s, 10));
         const type = arr[0];
+
         switch (type) {
           case MESSAGE_INT.SWITCH:
             this.server.send(MESSAGE.SWITCH, arr[1]);
@@ -199,6 +238,13 @@ parser.add_argument('-r', '--room', {
   choices: ['pvp', 'vs_random_player', 'vs_random_casino'],
   default: 'pvp',
 });
+parser.add_argument('-p', '--private', {
+  help: 'Create a private pvp room and get the room id',
+  action: 'store_true',
+});
+parser.add_argument('-j', '--join', {
+  help: 'Join a private room by room id',
+});
 parser.add_argument('-s', '--server', {
   help: 'URI of the game server',
   default: 'wss://bandit.erry.dev',
@@ -210,6 +256,11 @@ parser.add_argument('-v', '--verbose', {
 
 const args = parser.parse_args();
 
+if (args.private && args.room !== 'pvp') {
+  console.error('Only pvp rooms can be set to private');
+  process.exit(1);
+}
+
 log(`launching client`, args);
 
 const driver = new Driver(args.command[0], {
@@ -217,6 +268,8 @@ const driver = new Driver(args.command[0], {
   name: args.name,
   room: args.room,
   verbose: args.verbose,
+  isPrivate: args.private,
+  roomId: args.join,
   // verbose: true,
 });
 

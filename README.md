@@ -1,15 +1,21 @@
 ## Table of Content
+
 - [Getting Started](#getting-started)
-  - [Example](#example)
+- [Driver Usage](#driver-usage)
+  - [Example: PVE](#example-pve)
+  - [Example: Private PVP Room](#example-private-pvp-room)
+  - [Example: Self-hosted Server & Verbose Output](#example-self-hosted-server--verbose-output)
+  - [Arguments](#arguments)
 - [Client Development](#client-development)
-- [Client Development (Legacy)](#client-development-legacy)
-  - [Python](#python)
-  - [Java](#java)
-  - [C++](#c)
-  - [Typescript (NodeJS)](#typescript-nodejs)
-- [Proxy Usage](#proxy-usage)
-  - [Positional Arguments](#positional-arguments)
-  - [Example Usage](#example-usage)
+  - [Events](#events)
+  - [Server → Client Messages](#server--client-messages)
+    - [#0 `AWAIT_CASINO_INIT`](#0-await_casino_init)
+    - [#1 `AWAIT_CASINO`](#1-await_casino)
+    - [#2 `AWAIT_PLAYER`](#2-await_player)
+  - [Client → Server Messages](#client--server-messages)
+    - [#4 `PULL`](#4-pull)
+    - [#5 `SWITCH`](#5-switch)
+- [Server Usage](#server-usage)
 - [Server Development](#server-development)
   - [Swimlane Flowchart](#swimlane-flowchart)
   - [WebSocket Events](#websocket-events)
@@ -23,44 +29,64 @@
 1. [**Install NodeJS**](https://nodejs.org/en/download/) (LTS version)
    if you haven't already
 2. **Clone this repository**
-    ```sh
-    git clone https://github.com/Jkker/bandit-game-architecture
-    cd bandit-game-architecture
-    ```
-3. **Install dependencies**
-    ```sh
-    npm install
-    ```
-4. **Run the server**
-    ```sh
-    npm run start
-    ```
-    With environment variable overrides
-    ```sh
-    SLOT_COUNT=3 SWITCH_BUDGET=10 PORT=8080 npm run start
-    ```
-5. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
-    | Language       | Template                                                     |
-    | -------------- | ------------------------------------------------------------ |
-    | `C++`          | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)     |
-    | `Java` (WIP)   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
-    | `Python` (WIP) | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
-
-    You should compile it to an executable binary if needed.
-
-
-6. **Use the driver to run your client** (see [Driver Usage](#driver-usage) for the details)
    ```sh
-    node dist/driver/driver.js "./my_client.out" -n "My Client"
-    ```
+   git clone https://github.com/Jkker/bandit-game-architecture
+   cd bandit-game-architecture
+   ```
+3. **Install dependencies**
+   ```sh
+   npm install
+   ```
+4. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
+    | Language     | Template                                                     |
+    | ------------ | ------------------------------------------------------------ |
+    | `C++`        | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)     |
+    | `Java` (WIP) | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
+    | `Python`     | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
+
+   You should compile it to an executable binary if needed.
+
+5. **Use the driver to run your client** (see [Driver Usage](#driver-usage) for the details)
+
+   ```sh
+    node dist/driver/driver.js "./my_client.out" -n "My Player Client" -r vs_random_casino
+   ```
+
+   The driver will automatically connect to the public game server `wss://bandit.erry.dev` and start a game with your client.
 
 ## Driver Usage
 
-A [stdin/stdout-based driver](clients_v2/driver.ts) is provided to run your client. It will handle the communication with the server via websocket and proxy the messages to your  client via stdin.
+A [stdin/stdout-based driver](clients_v2/driver.ts) is provided to run your client. It will handle the communication with the server via websocket and proxy the messages to your client via stdin.
 
 ```sh
-node dist/driver/driver.js [-h] [-n NAME] [-r {pvp,vs_random_player,vs_random_casino}] [-s SERVER] [-v] command
+node dist/driver/driver.js [-h] [-n NAME] [-r {pvp,vs_random_player,vs_random_casino}] [-p] [-j ROOM_ID] [-s SERVER] [-v] command
+```
 
+### Example: PVE
+
+```sh
+node dist/driver/driver.js "./a.out" -n "My Casino" -r vs_random_player
+node dist/driver/driver.js "./a.out" -n "My Player" -r vs_random_casino
+```
+
+### Example: Private PVP Room
+
+```sh
+node dist/driver/driver.js "./a.out" -n "Casino" -p
+# Output:
+# 🔵 DRIVER | ✅ Created private room fORyxMB85 (use "-j fORyxMB85" to join this room)
+node dist/driver/driver.js "./a.out" -n "Player" -j fORyxMB85
+```
+
+### Example: Self-hosted Server & Verbose Output
+
+```sh
+node dist/driver/driver.js "./a.out" -n "Casino" -s ws://localhost:22222 -v
+```
+
+### Arguments
+
+```sh
 positional arguments:
   command               Command to run your client
 
@@ -69,16 +95,13 @@ optional arguments:
   -n, --name NAME  Your client name (default: anonymous)
   -r, --room {pvp,vs_random_player,vs_random_casino}
                         Type of room to join (default: pvp)
-  -s, --server SERVER
-                        URI of the game server (default: wss://bandit.erry.dev)
+  -s, --server SERVER   URI of the game server (default: wss://bandit.erry.dev)
+  -p, --private         Create a private pvp room and get the room id (default: false)
+  -j JOIN, --join JOIN  Join a private room by room id (default: undefined)
   -v, --verbose         Display client and server communication (default: false)
 ```
 
-### Example
 
-```sh
-node dist/driver/driver.js "./a.out" -n "Bad Casino" -r vs_random_player -s wss://bandit.erry.dev -v
-```
 
 ## Client Development
 
@@ -90,80 +113,118 @@ Client templates are provided in the `clients_v2` directory. You can use these t
 | `Java` (WIP)   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
 | `Python` (WIP) | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
 
+Sorry that no Go template is provided as I don't have any experience with Go. If you are interested in contributing, please feel free to open a PR.
 
-### Specifications (WIP)
+### Events
 
+Clients communicates with the driver via `stdin` and `stdout`. The driver will handle the communication with the server.
 
-## Client Development (Legacy)
-
-Clients use Unix Domain Socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
-
-
-### Python
-
-The Python 3 client takes care of launching the proxy server via `subprocess`. All you need to do is to implement the `casino_action_init`, `casino_action`, and `player_action` methods.
-
-[clients/python/random_client.py](clients/python/random_client.py)
-
-[clients/python/your_client.py](clients/python/your_client.py)
+Clients will receive messages from the driver via `stdin` as a space-separated string. For example, the driver may send the following message to the client:
 
 ```sh
-python3 clients/python/your_client.py
+0 3 20 10000
 ```
 
-### Java
-
-[clients/java/Client.java](clients/java/Client.java): Developed and tested with Java 17
-
-The Proxy server is required to be running before the client can connect to it. `run.sh` includes the command to run the proxy server alongside your Java client.
-
+and the client should interpret it as:
 
 ```sh
-cd clients/java
-chmod +x run.sh
-./run.sh
+AWAIT_CASINO_INIT switch_budget=3 slot_count=20 player_wealth=10000
 ```
 
-### C++
-
-The Proxy server is required to be running before the client can connect to it. `run.sh` includes the command to run the proxy server alongside your C++ client.
-
-
-[clients/cpp/client.cpp](clients/cpp/client.cpp)
+Then, the client should send a message to the driver via `stdout`. For example, the client may send the following message to the driver:
 
 ```sh
-cd clients/cpp
-g++ client.cpp -o client.out -std=c++17
-chmod +x run.sh
-./run.sh
+5 1
 ```
 
-### Typescript (NodeJS)
-
-[clients/typescript/client.ts](clients/typescript/client.ts) (no proxy required)
-
-## Proxy Usage
-
-The proxy server is a NodeJS application that takes care of authentication, matchmaking, and communication with the game server. It uses Unix Domain Socket to communicate with the clients.
-
-
-### Positional Arguments
-
-| Argument         | Description                                                                      |
-| ---------------- | -------------------------------------------------------------------------------- |
-| `unixSocketPath` | Path to the Unix Domain Socket that the proxy will listen for client connections |
-| `serverURI`      | URI of the game server                                                           |
-| `name`           | Name of the client                                                               |
-| `debug`          | If `true`, Print debug messages to the console                                   |
-
-### Example Usage
+and the driver should interpret it as:
 
 ```sh
-node clients/proxy.js
-# OR with arguments
-node clients/proxy.js /tmp/bandit.sock ws://localhost:22222/ "Awesome Team" true
+SWITCH slot_index=1
 ```
 
+| ID  | Type                | Sender | Receiver | Data                                                     |
+| --- | ------------------- | ------ | -------- | -------------------------------------------------------- |
+| 0   | `AWAIT_CASINO_INIT` | Server | Casino   | `switch_budget slot_count player_wealth`                 |
+| 1   | `AWAIT_CASINO`      | Server | Casino   | `switch_budget slot_count player_wealth player_switched` |
+| 2   | `AWAIT_PLAYER`      | Server | Player   | `player_wealth slot_count pull_budget`                   |
+| 3   | `GAME_OVER`         | Server | Player   |                                                          |
+| 4   | `PULL`              | Player | Server   | `slot stake`                                             |
+| 5   | `SWITCH`            | Casino | Server   | `slot`                                                   |
+
+### Server → Client Messages
+
+#### #0 `AWAIT_CASINO_INIT`
+
+This event informs the client that it is the casino for this game. The server now awaits an initial winning slot number to be sent.
+
+- `switch_budget` (int): number of remaining switches for the winning slot
+- `slot_count` (int): total number of slots
+- `player_wealth` (int): player's wealth
+
+Example: `0 3 20 10000`
+
+The client should then respond to the server with the [`SWITCH` event](#5-switch).
+
+#### #1 `AWAIT_CASINO`
+
+This event informs the client that it is the casino. The server now awaits an new slot number if the casino wants to switch the winning slot or 0 if not.
+
+- `switch_budget` (int): number of remaining switches for the winning slot
+- `slot_count` (int): total number of slots
+- `player_wealth` (int): player's wealth
+- `player_switched` (int): whether the player switched to a different slot machine (1 if yes, 0 if no)
+
+Example: `1 2 20 10001 1`
+
+The client should then respond to the server with the [`SWITCH` event](#5-switch).
+
+#### #2 `AWAIT_PLAYER`
+
+This event informs the client that it is the player for this game. The server now awaits a slot number that the player wants to play and the stake for the bet.
+
+- `player_wealth` (int) : player's wealth
+- `slot_count` (int) : total number of slots
+- `pull_budget` (int) : number of remaining pulls
+
+The client should then respond to the server with the [`PULL` event](#4-pull).
+
+### Client → Server Messages
+
+The client must prepend an stdout message with "command:" to indicate that it is a message. Other stdout lines will be printed to the console directly.
+
+#### #4 `PULL`
+
+This event informs the server that the player wants to pull the slot machine.
+
+- `slot` (int) : slot number that the player wants to play (1-indexed); 0 if the player wants to quit the game
+- `stake` (int) : stake for the bet in range [1,3]
+
+Example: `command: 4 1 3`
+
+#### #5 `SWITCH`
+
+This event informs the server that the casino wants to switch the winning slot.
+
+- `slot` (int) : slot number that the casino wants to switch to (1-indexed); 0 if the casino wants to keep the current winning slot
+
+Example: `command: 5 2`
+
+## Server Usage
+
+You can use the public server at `wss://bandit.erry.dev` to play the game. However, you can also run your own server locally if you want to.
+
+```sh
+npm run start
+```
+
+With environment variable overrides
+
+```sh
+SLOT_COUNT=3 SWITCH_BUDGET=10 PORT=8080 npm run start
+```
+
+You can also edit [`dist/development.env`](dist/development.env) to change the environment variable values. They will be loaded when you run `npm run start`.
 
 ## Server Development
 
@@ -202,13 +263,13 @@ The second client connected to the server is assigned the role of **PLAYER** and
 ### Directories
 
 - `server` - server source code
-- `clients` - sample clients
+- `clients` - proxy-based client templates (discontinued)
+- `clients_v2` - stdio-based client templates
 - `docs` - documentation resources
-- `tests` - server unit tests, integration tests, and load tests
+- `test` - server unit tests, integration tests, and load tests
 - `dist` - compiled server code
 - `arena.env` - production environment variables
 - `development.env` - development environment variables
-
 
 ## Contact
 

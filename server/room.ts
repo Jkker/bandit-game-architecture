@@ -1,7 +1,7 @@
-import { Schema, type } from "@colyseus/schema";
-import { Client, Delayed, Room } from "colyseus";
+import { Schema, type } from '@colyseus/schema';
+import { Client, Delayed, Room } from 'colyseus';
 
-import weighted from "weighted";
+import weighted from 'weighted';
 import {
   INIT_PLAYER_WEALTH,
   INIT_PULL_BUDGET,
@@ -10,7 +10,7 @@ import {
   TIME_LIMIT,
   WIN_RATE,
   MAX_PULL_STAKE,
-} from "./config";
+} from './config';
 
 import {
   CasinoActionRequest,
@@ -19,10 +19,10 @@ import {
   PlayerActionRequest,
   PlayerActionResponse,
   EndGameRequest,
-} from "./types";
+} from './types';
 
 class State extends Schema {
-  @type("number") wealth: number = 0;
+  @type('number') wealth: number = 0;
 }
 
 export class MyRoom extends Room<State> {
@@ -59,6 +59,9 @@ export class MyRoom extends Room<State> {
   // SECTION Lifecycle Methods
   onCreate(options: any) {
     this.setState(new State());
+    if (options.isPrivate) {
+      this.setPrivate();
+    }
     this.onMessage(MESSAGE.SWITCH, this.switch.bind(this));
     this.onMessage(MESSAGE.PULL, this.pull.bind(this));
   }
@@ -66,20 +69,19 @@ export class MyRoom extends Room<State> {
   onJoin(
     client: Client,
     options: {
-      role?: "P" | "C"; // force set role
       name: string; // team name
     }
   ) {
     // 1st Player
     if (!this.casino) {
-      console.log("🏦 Casino Joined:", options.name, client.sessionId);
+      console.log('🏦 Casino Joined:', options.name, client.sessionId);
       this.casino = {
         id: client.sessionId,
         name: options.name,
         client: client,
         timer: this.clock.setTimeout(() => {
           this.casino_timeout = true;
-          this.end("Casino Timed Out");
+          this.end('Casino Timed Out');
         }, TIME_LIMIT),
       };
 
@@ -94,7 +96,7 @@ export class MyRoom extends Room<State> {
     }
     // 2nd Player
     if (!this.player) {
-      console.log("👨 Player Joined:", options.name, client.sessionId);
+      console.log('👨 Player Joined:', options.name, client.sessionId);
 
       // lock this room for new users
       this.lock();
@@ -104,7 +106,7 @@ export class MyRoom extends Room<State> {
         name: options.name,
         client: client,
         timer: this.clock.setTimeout(
-          () => this.end("Player Timed Out"),
+          () => this.end('Player Timed Out'),
           TIME_LIMIT
         ),
       };
@@ -119,14 +121,14 @@ export class MyRoom extends Room<State> {
   }
 
   onLeave(client: Client, consented: boolean) {
-    console.log(client.sessionId, "left!");
+    console.log(client.sessionId, 'left!');
     this.broadcast(MESSAGE.GAME_OVER, {
       player_wealth: this.player_wealth,
     });
   }
 
   onDispose() {
-    console.log("room", this.roomId, "disposing...");
+    console.log('room', this.roomId, 'disposing...');
   }
   // END_SECTION Lifecycle Methods
 
@@ -158,7 +160,7 @@ export class MyRoom extends Room<State> {
       player_wealth: this.player_wealth,
       reason,
     };
-    console.log("🛑 GAME ENDED", payload);
+    console.log('🛑 GAME ENDED', payload);
     this.broadcast(MESSAGE.GAME_OVER, payload);
     this.disconnect();
   }
@@ -171,12 +173,12 @@ export class MyRoom extends Room<State> {
 
     // You are not the casino
     if (casinoClient.sessionId !== this.casino.id)
-      return casinoClient.error(401, "You are not the casino");
+      return casinoClient.error(401, 'You are not the casino');
 
     // Casino exceeded max number of switches
     if (this.switch_budget <= 0 && slot !== 0)
       // ignore this error and continue without returning
-      casinoClient.error(400, "Casino exceeded max number of switches");
+      casinoClient.error(400, 'Casino exceeded max number of switches');
 
     // Check if this is the initial assignment
     if (!this.winning_slot) {
@@ -191,12 +193,12 @@ export class MyRoom extends Room<State> {
         );
       }
       this.winning_slot = slot;
-      console.log("🏦 Initialized Winning Slot: ", slot);
+      console.log('🏦 Initialized Winning Slot: ', slot);
     } else {
       // Perform switch if slot is valid & switch_budget > 0
       if (slot !== 0 && slot !== this.winning_slot && this.switch_budget > 0) {
         console.log(
-          "🏦 ",
+          '🏦 ',
           MESSAGE.SWITCH,
           slot,
           `(${this.switch_budget} switches left)`
@@ -222,7 +224,7 @@ export class MyRoom extends Room<State> {
 
     // Guards
     if (playerClient.sessionId !== this.player.id)
-      return playerClient.error(401, "You are not the player");
+      return playerClient.error(401, 'You are not the player');
 
     if (message.stake > this.player_wealth)
       return playerClient.error(
@@ -248,7 +250,7 @@ export class MyRoom extends Room<State> {
         `Player pull slot ${message.slot} is not in range [1,${SLOT_COUNT}]`
       );
 
-    console.log("🕹️", MESSAGE.PULL, message);
+    console.log('🕹️', MESSAGE.PULL, message);
 
     // Await casino switch
     this.awaitCasinoAction(this.prev_pull?.slot !== message.slot);
@@ -277,7 +279,7 @@ export class MyRoom extends Room<State> {
 
     this.pull_budget -= 1;
     this.player_wealth += outcome;
-    console.log("    OUTCOME", {
+    console.log('    OUTCOME', {
       outcome,
       wealth: this.player_wealth,
       pull_budget: this.pull_budget,

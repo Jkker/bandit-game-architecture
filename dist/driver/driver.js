@@ -52,7 +52,7 @@ const log = (message, data, isError = false) => {
     }
 };
 class Driver {
-    constructor(command, { serverURI, name, room, verbose, }) {
+    constructor(command, { serverURI, name, room, verbose, isPrivate, }) {
         this.name = 'stdio_driver';
         const cmdList = command.split(' ');
         const executable = cmdList[0];
@@ -60,6 +60,7 @@ class Driver {
         this.name = name;
         this.serverURI = serverURI;
         this.roomType = room;
+        this.isPrivate = isPrivate;
         this.verbose = verbose;
         this.executable = executable;
         this.args = cmdArgs;
@@ -68,8 +69,24 @@ class Driver {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const client = new Colyseus.Client(this.serverURI);
+                if (this.isPrivate) {
+                    if (this.isPrivate === true) {
+                        this.server = yield client.create(this.roomType, {
+                            name: this.name,
+                            isPrivate: true,
+                        });
+                        log(`Private room created: ${this.server.id} (use -p ${this.server.id} to join this room)`);
+                    }
+                }
+                else {
+                    this.server = yield client.joinById(this.isPrivate + '', {
+                        name: this.name,
+                    });
+                    log(`Joined private room ${this.server.id}`);
+                }
                 this.server = yield client.joinOrCreate(this.roomType, {
                     name: this.name,
+                    isPrivate: this.isPrivate,
                 });
                 if (this.verbose)
                     log(`✅ connected to game server`);
@@ -99,13 +116,15 @@ class Driver {
             this.errFeed = (0, readline_1.createInterface)({ input: this.client.stderr });
             this.outFeed.on('line', (line) => {
                 // if (this.verbose) log(`received from client`, line);
-                if (!line.startsWith('command:')) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('command:')) {
                     console.log(`💡 CLIENT: ${line}`);
                     return;
                 }
                 try {
-                    const arr = line
+                    const arr = trimmed
                         .slice(8) // replace 'command:' with ''
+                        .trim()
                         .split(' ')
                         .map((s) => parseInt(s, 10));
                     const type = arr[0];
@@ -198,6 +217,11 @@ parser.add_argument('-r', '--room', {
     choices: ['pvp', 'vs_random_player', 'vs_random_casino'],
     default: 'pvp',
 });
+parser.add_argument('-p', '--private', {
+    help: 'Leave blank to create a private pvp room and get the room id; or specify a room id to join',
+    nargs: '?',
+    default: true,
+});
 parser.add_argument('-s', '--server', {
     help: 'URI of the game server',
     default: 'wss://bandit.erry.dev',
@@ -207,12 +231,17 @@ parser.add_argument('-v', '--verbose', {
     action: 'store_true',
 });
 const args = parser.parse_args();
+if (args.private && args.room !== 'pvp') {
+    console.error('Only pvp rooms can be set to private');
+    process.exit(1);
+}
 log(`launching client`, args);
 const driver = new Driver(args.command[0], {
     serverURI: args.server,
     name: args.name,
     room: args.room,
     verbose: args.verbose,
+    isPrivate: args.private,
     // verbose: true,
 });
 driver.start();

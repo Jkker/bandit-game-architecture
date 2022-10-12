@@ -7,9 +7,20 @@ import { monitor } from "@colyseus/monitor";
 import { MyRoom } from "./room";
 import { VsRandomPlayer } from "./vsRandomPlayer";
 import { VsRandomCasino } from "./vsRandomCasino";
+import basicAuth from "express-basic-auth";
+
+const basicAuthMiddleware = basicAuth({
+  // list of users and passwords
+  users: {
+    admin: "admin",
+  },
+  // sends WWW-Authenticate header, which will prompt the user to fill
+  // credentials in
+  challenge: true,
+});
 
 export default Arena({
-  getId: () => "Bandit 2022",
+  getId: () => "Bandit Game Server v2022.10.10",
 
   initializeGameServer: (gameServer) => {
     /**
@@ -33,7 +44,7 @@ export default Arena({
      * It is recommended to protect this route with a password.
      * Read more: https://docs.colyseus.io/tools/monitor/
      */
-    app.use("/colyseus", monitor());
+    app.use("/colyseus", basicAuthMiddleware, monitor());
   },
 
   beforeListen: () => {
