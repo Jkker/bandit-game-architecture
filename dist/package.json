@@ -1,13 +1,14 @@
 {
   "private": true,
   "name": "bandit-architecture",
-  "version": "1.0.0",
+  "version": "2022.10.10.1",
   "description": "NYU Heuristic Problem Solving Bandit Game Architecture",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/server/index.js",
+    "deploy": "npm run build && pm2 startOrRestart ecosystem.config.js",
     "dev": "ts-node-dev --respawn --transpile-only server/index.ts",
-    "loadtest": "colyseus-loadtest test/random-load_test.ts --room bandit --numClients 100 --endpoint ws://localhost:22222",
+    "loadtest": "colyseus-loadtest test/random-load_test.ts --room pvp --numClients 1000 --endpoint wss://bandit.erry.dev",
     "build": "node node_modules/rimraf/bin dist && tsc && node node_modules/copyfiles/copyfiles package.json ./dist && node node_modules/copyfiles/copyfiles *.env ./dist",
     "clean": "node node_modules/rimraf/bin *.log *.bkp",
     "test": "mocha --require ts-node/register test/**-unit_test.ts --exit --timeout 15000",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@colyseus/loadtest": "^0.14.7",
     "@colyseus/testing": "^0.14.22",
+    "@types/argparse": "^2.0.10",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.14",
     "@types/mocha": "^10.0.0",
@@ -42,6 +44,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "express-basic-auth": "^1.2.1",
     "weighted": "^1.0.0"
   }
 }

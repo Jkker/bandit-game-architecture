@@ -13,6 +13,8 @@
   },
   "include": [
     "server",
-    "clients"
+    "clients",
+    "clients_v2", "driver/driver.ts",
+    // "driver.ts",
   ],
 }

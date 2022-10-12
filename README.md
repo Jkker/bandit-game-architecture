@@ -1,6 +1,8 @@
 ## Table of Content
 - [Getting Started](#getting-started)
-- [Client Usage](#client-usage)
+  - [Example](#example)
+- [Client Development](#client-development)
+- [Client Development (Legacy)](#client-development-legacy)
   - [Python](#python)
   - [Java](#java)
   - [C++](#c)
@@ -8,7 +10,7 @@
 - [Proxy Usage](#proxy-usage)
   - [Positional Arguments](#positional-arguments)
   - [Example Usage](#example-usage)
-- [Development](#development)
+- [Server Development](#server-development)
   - [Swimlane Flowchart](#swimlane-flowchart)
   - [WebSocket Events](#websocket-events)
   - [Specifications](#specifications)
@@ -18,7 +20,7 @@
 
 ## Getting Started
 
-1. [**Install NodeJS**](https://nodejs.org/en/download/)
+1. [**Install NodeJS**](https://nodejs.org/en/download/) (LTS version)
    if you haven't already
 2. **Clone this repository**
     ```sh
@@ -37,23 +39,62 @@
     ```sh
     SLOT_COUNT=3 SWITCH_BUDGET=10 PORT=8080 npm run start
     ```
-5. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for details)
+5. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
+    | Language       | Template                                                     |
+    | -------------- | ------------------------------------------------------------ |
+    | `C++`          | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)     |
+    | `Java` (WIP)   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
+    | `Python` (WIP) | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
 
-6. **Run the proxy** (see [Proxy Usage](#proxy-usage) for details)
+    You should compile it to an executable binary if needed.
+
+
+6. **Use the driver to run your client** (see [Driver Usage](#driver-usage) for the details)
    ```sh
-    npm run proxy
+    node dist/driver/driver.js "./my_client.out" -n "My Client"
     ```
-7. **Run your client**
-    ```sh
-     python3 clients/python/random_client.py
-     ```
 
-  ℹ️ **Note**: change `room` to `vs_random_casino` or `vs_random_player` to play against a random casino or random player respectively (see [WebSocket Events](#websocket-events) for details)
+## Driver Usage
+
+A [stdin/stdout-based driver](clients_v2/driver.ts) is provided to run your client. It will handle the communication with the server via websocket and proxy the messages to your  client via stdin.
+
+```sh
+node dist/driver/driver.js [-h] [-n NAME] [-r {pvp,vs_random_player,vs_random_casino}] [-s SERVER] [-v] command
+
+positional arguments:
+  command               Command to run your client
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n, --name NAME  Your client name (default: anonymous)
+  -r, --room {pvp,vs_random_player,vs_random_casino}
+                        Type of room to join (default: pvp)
+  -s, --server SERVER
+                        URI of the game server (default: wss://bandit.erry.dev)
+  -v, --verbose         Display client and server communication (default: false)
+```
+
+### Example
+
+```sh
+node dist/driver/driver.js "./a.out" -n "Bad Casino" -r vs_random_player -s wss://bandit.erry.dev -v
+```
+
+## Client Development
+
+Client templates are provided in the `clients_v2` directory. You can use these templates to implement your own client.
+
+| Language       | Template                                                     |
+| -------------- | ------------------------------------------------------------ |
+| `C++`          | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)     |
+| `Java` (WIP)   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
+| `Python` (WIP) | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
 
 
+### Specifications (WIP)
 
 
-## Client Usage
+## Client Development (Legacy)
 
 Clients use Unix Domain Socket to communicate with a proxy that takes care of authentication, matchmaking, and communication with the game server. Sample clients are provided in the `clients` directory.
 
@@ -124,7 +165,7 @@ node clients/proxy.js /tmp/bandit.sock ws://localhost:22222/ "Awesome Team" true
 ```
 
 
-## Development
+## Server Development
 
 ### Swimlane Flowchart
 
