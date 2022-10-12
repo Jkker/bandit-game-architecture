@@ -80,7 +80,8 @@ export class MyRoom extends Room<State> {
   ) {
     // 1st Player
     if (!this.casino) {
-      console.log('🏦 Casino Joined:', options.name, client.sessionId);
+      if (!PRODUCTION)
+        console.log('🏦 Casino Joined:', options.name, client.sessionId);
       this.casino = {
         id: client.sessionId,
         name: options.name,
@@ -102,7 +103,8 @@ export class MyRoom extends Room<State> {
     }
     // 2nd Player
     if (!this.player) {
-      console.log('👨 Player Joined:', options.name, client.sessionId);
+      if (!PRODUCTION)
+        console.log('👨 Player Joined:', options.name, client.sessionId);
 
       // lock this room for new users
       this.lock();
@@ -144,20 +146,21 @@ export class MyRoom extends Room<State> {
   }
 
   async save() {
-    const log = new GameRecord({
+    const data = {
       casino: this.casino.name ?? 'Unknown Casino',
       player: this.player.name ?? 'Unknown Player',
       player_wealth: this.player_wealth,
       switch_budget: this.switch_budget,
       pull_budget: this.pull_budget,
       end_reason: this.end_reason ?? 'Unknown',
-    });
-    await log.save();
-    console.log('📝 Saved Game Record', log.toObject());
+    };
+    const record = new GameRecord(data);
+    await record.save();
+    console.log('📝 Saved Game Record', data);
   }
 
   async onDispose() {
-    console.log('room', this.roomId, 'disposing...');
+    if (!PRODUCTION) console.log('room', this.roomId, 'disposing...');
     if (PRODUCTION) await this.save();
   }
   // END_SECTION Lifecycle Methods
@@ -192,7 +195,7 @@ export class MyRoom extends Room<State> {
       reason,
     };
     this.end_reason = reason;
-    console.log('🛑 GAME ENDED', payload);
+    if (!PRODUCTION) console.log('🛑 GAME ENDED', payload);
     this.broadcast(MESSAGE.GAME_OVER, payload);
     this.disconnect();
   }
@@ -225,16 +228,17 @@ export class MyRoom extends Room<State> {
         );
       }
       this.winning_slot = slot;
-      console.log('🏦 Initialized Winning Slot: ', slot);
+      if (!PRODUCTION) console.log('🏦 Initialized Winning Slot: ', slot);
     } else {
       // Perform switch if slot is valid & switch_budget > 0
       if (slot !== 0 && slot !== this.winning_slot && this.switch_budget > 0) {
-        console.log(
-          '🏦 ',
-          MESSAGE.SWITCH,
-          slot,
-          `(${this.switch_budget} switches left)`
-        );
+        if (!PRODUCTION)
+          console.log(
+            '🏦 ',
+            MESSAGE.SWITCH,
+            slot,
+            `(${this.switch_budget} switches left)`
+          );
 
         this.switch_budget -= 1;
         this.winning_slot = slot;
@@ -282,7 +286,7 @@ export class MyRoom extends Room<State> {
         `Player pull slot ${message.slot} is not in range [1,${SLOT_COUNT}]`
       );
 
-    console.log('🕹️', MESSAGE.PULL, message);
+    if (!PRODUCTION) console.log('🕹️', MESSAGE.PULL, message);
 
     // Await casino switch
     this.awaitCasinoAction(this.prev_pull?.slot !== message.slot);
@@ -311,11 +315,12 @@ export class MyRoom extends Room<State> {
 
     this.pull_budget -= 1;
     this.player_wealth += outcome;
-    console.log('    OUTCOME', {
-      outcome,
-      wealth: this.player_wealth,
-      pull_budget: this.pull_budget,
-    });
+    if (!PRODUCTION)
+      console.log('    OUTCOME', {
+        outcome,
+        wealth: this.player_wealth,
+        pull_budget: this.pull_budget,
+      });
   }
   // END_SECTION Utils
 }

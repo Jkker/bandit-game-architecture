@@ -65,7 +65,8 @@ class MyRoom extends colyseus_1.Room {
     onJoin(client, options) {
         // 1st Player
         if (!this.casino) {
-            console.log('🏦 Casino Joined:', options.name, client.sessionId);
+            if (!config_1.PRODUCTION)
+                console.log('🏦 Casino Joined:', options.name, client.sessionId);
             this.casino = {
                 id: client.sessionId,
                 name: options.name,
@@ -85,7 +86,8 @@ class MyRoom extends colyseus_1.Room {
         }
         // 2nd Player
         if (!this.player) {
-            console.log('👨 Player Joined:', options.name, client.sessionId);
+            if (!config_1.PRODUCTION)
+                console.log('👨 Player Joined:', options.name, client.sessionId);
             // lock this room for new users
             this.lock();
             this.player = {
@@ -117,21 +119,23 @@ class MyRoom extends colyseus_1.Room {
     save() {
         var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
-            const log = new GameRecord_1.GameRecord({
+            const data = {
                 casino: (_a = this.casino.name) !== null && _a !== void 0 ? _a : 'Unknown Casino',
                 player: (_b = this.player.name) !== null && _b !== void 0 ? _b : 'Unknown Player',
                 player_wealth: this.player_wealth,
                 switch_budget: this.switch_budget,
                 pull_budget: this.pull_budget,
                 end_reason: (_c = this.end_reason) !== null && _c !== void 0 ? _c : 'Unknown',
-            });
-            yield log.save();
-            console.log('📝 Saved Game Record', log.toObject());
+            };
+            const record = new GameRecord_1.GameRecord(data);
+            yield record.save();
+            console.log('📝 Saved Game Record', data);
         });
     }
     onDispose() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('room', this.roomId, 'disposing...');
+            if (!config_1.PRODUCTION)
+                console.log('room', this.roomId, 'disposing...');
             if (config_1.PRODUCTION)
                 yield this.save();
         });
@@ -164,7 +168,8 @@ class MyRoom extends colyseus_1.Room {
             reason,
         };
         this.end_reason = reason;
-        console.log('🛑 GAME ENDED', payload);
+        if (!config_1.PRODUCTION)
+            console.log('🛑 GAME ENDED', payload);
         this.broadcast(types_1.MESSAGE.GAME_OVER, payload);
         this.disconnect();
     }
@@ -188,12 +193,14 @@ class MyRoom extends colyseus_1.Room {
                 this.end(`Invalid casino initial winning slot assignment: ${slot} is not in range [1,${config_1.SLOT_COUNT}]`);
             }
             this.winning_slot = slot;
-            console.log('🏦 Initialized Winning Slot: ', slot);
+            if (!config_1.PRODUCTION)
+                console.log('🏦 Initialized Winning Slot: ', slot);
         }
         else {
             // Perform switch if slot is valid & switch_budget > 0
             if (slot !== 0 && slot !== this.winning_slot && this.switch_budget > 0) {
-                console.log('🏦 ', types_1.MESSAGE.SWITCH, slot, `(${this.switch_budget} switches left)`);
+                if (!config_1.PRODUCTION)
+                    console.log('🏦 ', types_1.MESSAGE.SWITCH, slot, `(${this.switch_budget} switches left)`);
                 this.switch_budget -= 1;
                 this.winning_slot = slot;
             }
@@ -224,7 +231,8 @@ class MyRoom extends colyseus_1.Room {
             return this.end(`Player decided to stop`);
         if (message.slot > config_1.SLOT_COUNT || message.slot < 1)
             return playerClient.error(400, `Player pull slot ${message.slot} is not in range [1,${config_1.SLOT_COUNT}]`);
-        console.log('🕹️', types_1.MESSAGE.PULL, message);
+        if (!config_1.PRODUCTION)
+            console.log('🕹️', types_1.MESSAGE.PULL, message);
         // Await casino switch
         this.awaitCasinoAction(((_a = this.prev_pull) === null || _a === void 0 ? void 0 : _a.slot) !== message.slot);
         // Store pull data
@@ -247,11 +255,12 @@ class MyRoom extends colyseus_1.Room {
         });
         this.pull_budget -= 1;
         this.player_wealth += outcome;
-        console.log('    OUTCOME', {
-            outcome,
-            wealth: this.player_wealth,
-            pull_budget: this.pull_budget,
-        });
+        if (!config_1.PRODUCTION)
+            console.log('    OUTCOME', {
+                outcome,
+                wealth: this.player_wealth,
+                pull_budget: this.pull_budget,
+            });
     }
 }
 exports.MyRoom = MyRoom;
