@@ -38,11 +38,11 @@
    npm install
    ```
 4. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
-   | Language | Template |
-   | -------- | ----------------------------------------------------------------- |
-   | `C++` | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp) |
-   | `Java` | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
-   | `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) |
+   | Language | Template | Version |
+   | -------- | ----------------------------------------------------------------- | ---------- |
+   | `C++` | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp) | C++17 |
+   | `Java` | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) | Java 17 |
+   | `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) | Python 3.9 |
 
    You should compile it to an executable binary if needed.
 
@@ -106,11 +106,11 @@ optional arguments:
 
 Client templates are provided in the `clients_v2` directory. You can use these templates to implement your own client.
 
-| Language | Template                                                          |
-| -------- | ----------------------------------------------------------------- |
-| `C++`    | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)          |
-| `Java`   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java)      |
-| `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) |
+| Language | Template                                                          | Version    |
+| -------- | ----------------------------------------------------------------- | ---------- |
+| `C++`    | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)          | C++17      |
+| `Java`   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java)      | Java 17    |
+| `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) | Python 3.9 |
 
 Sorry that no Go template is provided as I don't have any experience with Go. If you are interested in contributing, please feel free to open a PR.
 
