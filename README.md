@@ -38,21 +38,22 @@
    npm install
    ```
 4. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
-    | Language     | Template                                                     |
-    | ------------ | ------------------------------------------------------------ |
-    | `C++`        | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)     |
-    | `Java` (WIP) | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
-    | `Python`     | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
+    | Language | Template                                                          |
+    | -------- | ----------------------------------------------------------------- |
+    | `C++`    | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)          |
+    | `Java`   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java)      |
+    | `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) |
 
    You should compile it to an executable binary if needed.
 
-5. **Use the driver to run your client** (see [Driver Usage](#driver-usage) for the details)
+5. **Use the driver to run your client**
 
    ```sh
-    node dist/driver/driver.js "./my_client.out" -n "My Player Client" -r vs_random_casino
+    node dist/driver/driver.js "./my_client.out" -n "Player" -r vs_random_casino
    ```
 
    The driver will automatically connect to the public game server `wss://bandit.erry.dev` and start a game with your client.
+   Please limit to 100 connections per IP address to avoid abuse.
 
 ## Driver Usage
 
@@ -65,23 +66,23 @@ node dist/driver/driver.js [-h] [-n NAME] [-r {pvp,vs_random_player,vs_random_ca
 ### Example: PVE
 
 ```sh
-node dist/driver/driver.js "./a.out" -n "My Casino" -r vs_random_player
-node dist/driver/driver.js "./a.out" -n "My Player" -r vs_random_casino
+node dist/driver/driver.js "java clients_v2/java/Client.java" -n "Java Casino" -r vs_random_player
+node dist/driver/driver.js "python3 clients_v2/python/random_client.py" -n "Python Player" -r vs_random_casino
 ```
 
 ### Example: Private PVP Room
 
 ```sh
-node dist/driver/driver.js "./a.out" -n "Casino" -p
+node dist/driver/driver.js "java clients_v2/java/Client.java" -n "Java Casino" -p
 # Output:
 # 🔵 DRIVER | ✅ Created private room fORyxMB85 (use "-j fORyxMB85" to join this room)
-node dist/driver/driver.js "./a.out" -n "Player" -j fORyxMB85
+node dist/driver/driver.js "python3 clients_v2/python/random_client.py" -n "Python Player" -j fORyxMB85
 ```
 
 ### Example: Self-hosted Server & Verbose Output
 
 ```sh
-node dist/driver/driver.js "./a.out" -n "Casino" -s ws://localhost:22222 -v
+node dist/driver/driver.js "./my_client.out" -n "My C++ Casino" -s ws://localhost:22222 -v
 ```
 
 ### Arguments
@@ -107,11 +108,11 @@ optional arguments:
 
 Client templates are provided in the `clients_v2` directory. You can use these templates to implement your own client.
 
-| Language       | Template                                                     |
-| -------------- | ------------------------------------------------------------ |
-| `C++`          | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)     |
-| `Java` (WIP)   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
-| `Python` (WIP) | [`clients_v2/python/client.py`](clients_v2/python/client.py) |
+| Language | Template                                                          |
+| -------- | ----------------------------------------------------------------- |
+| `C++`    | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)          |
+| `Java`   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java)      |
+| `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) |
 
 Sorry that no Go template is provided as I don't have any experience with Go. If you are interested in contributing, please feel free to open a PR.
 
@@ -267,7 +268,7 @@ The second client connected to the server is assigned the role of **PLAYER** and
 - `clients_v2` - stdio-based client templates
 - `docs` - documentation resources
 - `test` - server unit tests, integration tests, and load tests
-- `dist` - compiled server code
+- `dist` - transpiled code
 - `arena.env` - production environment variables
 - `development.env` - development environment variables
 
