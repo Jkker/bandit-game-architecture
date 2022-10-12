@@ -49,6 +49,7 @@ class MyRoom extends colyseus_1.Room {
         // Player Private State
         this.pull_budget = config_1.INIT_PULL_BUDGET; // includes initial switch
         this.player_wealth = config_1.INIT_PLAYER_WEALTH;
+        this.game_ended = false;
         // END_SECTION Utils
     }
     // END_SECTION Game States
@@ -102,10 +103,14 @@ class MyRoom extends colyseus_1.Room {
         }
     }
     onLeave(client, consented) {
-        if (this.casino && this.casino.id === client.sessionId) {
+        if (!this.game_ended &&
+            this.casino &&
+            this.casino.id === client.sessionId) {
             this.end(`Casino ${this.casino.name} Left`);
         }
-        if (this.player && this.player.id === client.sessionId) {
+        if (!this.game_ended &&
+            this.player &&
+            this.player.id === client.sessionId) {
             this.end(`Player ${this.player.name} Left`);
         }
     }
@@ -153,6 +158,7 @@ class MyRoom extends colyseus_1.Room {
         this.player.timer.resume();
     }
     end(reason) {
+        this.game_ended = true;
         const payload = {
             player_wealth: this.player_wealth,
             reason,
