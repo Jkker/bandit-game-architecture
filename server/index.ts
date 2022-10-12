@@ -14,15 +14,16 @@ import arenaConfig from './arena.config';
 import { MONGODB_URI, PORT, PRODUCTION } from './config';
 
 // Create and listen on 22222 (or PORT environment variable.)
-if (PRODUCTION)
+if (PRODUCTION) {
   connect(
     MONGODB_URI,
     {
       useNewUrlParser: true,
+      useUnifiedTopology: true,
     } as any,
     () => {
       console.log(`🔵 SERVER | connected to db`);
       listen(arenaConfig, PORT);
     }
   );
-else listen(arenaConfig, PORT);
+} else listen(arenaConfig, PORT);
