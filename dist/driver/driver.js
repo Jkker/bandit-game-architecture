@@ -52,7 +52,7 @@ const log = (message, data, isError = false) => {
     }
 };
 class Driver {
-    constructor(command, { serverURI, name, room, verbose, isPrivate, }) {
+    constructor(command, { serverURI, name, room, verbose, isPrivate, roomId, }) {
         this.name = 'stdio_driver';
         const cmdList = command.split(' ');
         const executable = cmdList[0];
@@ -61,6 +61,7 @@ class Driver {
         this.serverURI = serverURI;
         this.roomType = room;
         this.isPrivate = isPrivate;
+        this.roomId = roomId;
         this.verbose = verbose;
         this.executable = executable;
         this.args = cmdArgs;
@@ -70,19 +71,25 @@ class Driver {
             try {
                 const client = new Colyseus.Client(this.serverURI);
                 if (this.isPrivate) {
-                    if (this.isPrivate === true) {
-                        this.server = yield client.create(this.roomType, {
-                            name: this.name,
-                            isPrivate: true,
-                        });
-                        log(`Private room created: ${this.server.id} (use -p ${this.server.id} to join this room)`);
-                    }
-                }
-                else {
-                    this.server = yield client.joinById(this.isPrivate + '', {
+                    this.server = yield client.create(this.roomType, {
                         name: this.name,
+                        isPrivate: true,
                     });
-                    log(`Joined private room ${this.server.id}`);
+                    log(`✅ Created private room ${this.server.id} (use "-j ${this.server.id}" to join this room)`);
+                    return;
+                }
+                if (this.roomId) {
+                    try {
+                        this.server = yield client.joinById(this.roomId, {
+                            name: this.name,
+                        });
+                        log(`✅ Joined private room ${this.server.id}`);
+                    }
+                    catch (e) {
+                        log(`Failed to join private room ${this.roomId}. Does this room ID exit?`, e, true);
+                        process.exit(1);
+                    }
+                    return;
                 }
                 this.server = yield client.joinOrCreate(this.roomType, {
                     name: this.name,
@@ -218,9 +225,11 @@ parser.add_argument('-r', '--room', {
     default: 'pvp',
 });
 parser.add_argument('-p', '--private', {
-    help: 'Leave blank to create a private pvp room and get the room id; or specify a room id to join',
-    nargs: '?',
-    default: true,
+    help: 'Create a private pvp room and get the room id',
+    action: 'store_true',
+});
+parser.add_argument('-j', '--join', {
+    help: 'Join a private room by room id',
 });
 parser.add_argument('-s', '--server', {
     help: 'URI of the game server',
@@ -242,6 +251,7 @@ const driver = new Driver(args.command[0], {
     room: args.room,
     verbose: args.verbose,
     isPrivate: args.private,
+    roomId: args.join,
     // verbose: true,
 });
 driver.start();

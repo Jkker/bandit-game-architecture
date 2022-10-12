@@ -1,20 +1,20 @@
 // Demo Typescript Client with Random Strategy
 
-import * as Colyseus from "colyseus.js";
+import * as Colyseus from 'colyseus.js';
 import {
   CasinoActionRequest,
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-} from "../../server/types";
+} from '../../server/types';
 
-import RandomClient from "./Random";
+import RandomClient from './Random';
 
-const client = new Colyseus.Client("ws://localhost:22222");
+const client = new Colyseus.Client('ws://localhost:22222');
 
 client
-  .joinOrCreate("vs_random_casino", {
-    name: "Random Client",
+  .joinOrCreate('vs_random_casino', {
+    name: 'Random Client',
   })
   .then((room) => {
     const randomClient = new RandomClient();
@@ -46,5 +46,5 @@ client
     });
   })
   .catch((e) => {
-    console.log("JOIN ERROR", e);
+    console.log('JOIN ERROR', e);
   });

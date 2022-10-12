@@ -5,7 +5,7 @@ import {
   PlayerActionRequest,
   PlayerActionResponse,
   getRandomInt,
-} from "../../server/types";
+} from '../../server/types';
 
 export default class RandomClient {
   casinoActionInit(data: CasinoActionRequest): CasinoActionResponse {

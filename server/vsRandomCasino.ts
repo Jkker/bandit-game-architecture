@@ -1,7 +1,7 @@
-import { Schema, type } from "@colyseus/schema";
-import { Client, Delayed, Room } from "colyseus";
+import { Schema, type } from '@colyseus/schema';
+import { Client, Delayed, Room } from 'colyseus';
 
-import weighted from "weighted";
+import weighted from 'weighted';
 import {
   INIT_PLAYER_WEALTH,
   INIT_PULL_BUDGET,
@@ -10,7 +10,7 @@ import {
   TIME_LIMIT,
   WIN_RATE,
   MAX_PULL_STAKE,
-} from "./config";
+} from './config';
 
 import {
   CasinoActionRequest,
@@ -20,10 +20,10 @@ import {
   PlayerActionResponse,
   EndGameRequest,
   getRandomInt,
-} from "./types";
+} from './types';
 
 class State extends Schema {
-  @type("number") wealth: number = 0;
+  @type('number') wealth: number = 0;
 }
 
 export class VsRandomCasino extends Room<State> {
@@ -67,11 +67,11 @@ export class VsRandomCasino extends Room<State> {
   onJoin(
     client: Client,
     options: {
-      role?: "P" | "C"; // force set role
+      role?: 'P' | 'C'; // force set role
       name: string; // team name
     }
   ) {
-    console.log("👨 Player Joined:", options.name, client.sessionId);
+    console.log('👨 Player Joined:', options.name, client.sessionId);
 
     // lock this room for new users
     this.lock();
@@ -81,7 +81,7 @@ export class VsRandomCasino extends Room<State> {
       name: options.name,
       client: client,
       timer: this.clock.setTimeout(
-        () => this.end("Player Timed Out"),
+        () => this.end('Player Timed Out'),
         TIME_LIMIT
       ),
     };
@@ -93,14 +93,14 @@ export class VsRandomCasino extends Room<State> {
   }
 
   onLeave(client: Client, consented: boolean) {
-    console.log(client.sessionId, "left!");
+    console.log(client.sessionId, 'left!');
     this.broadcast(MESSAGE.GAME_OVER, {
       player_wealth: this.player_wealth,
     });
   }
 
   onDispose() {
-    console.log("room", this.roomId, "disposing...");
+    console.log('room', this.roomId, 'disposing...');
   }
   // END_SECTION Lifecycle Methods
 
@@ -135,7 +135,7 @@ export class VsRandomCasino extends Room<State> {
       player_wealth: this.player_wealth,
       reason,
     };
-    console.log("🛑 GAME ENDED", payload);
+    console.log('🛑 GAME ENDED', payload);
     this.broadcast(MESSAGE.GAME_OVER, payload);
     this.disconnect();
   }
@@ -147,7 +147,7 @@ export class VsRandomCasino extends Room<State> {
     // Casino exceeded max number of switches
     if (this.switch_budget <= 0 && slot !== 0)
       // ignore this error and continue without returning
-      console.log(400, "Casino exceeded max number of switches");
+      console.log(400, 'Casino exceeded max number of switches');
 
     if (this.switch_budget > 0 && slot !== 0) {
       this.switch_budget -= 1;
@@ -169,7 +169,7 @@ export class VsRandomCasino extends Room<State> {
 
     // Guards
     if (playerClient.sessionId !== this.player.id)
-      return playerClient.error(401, "You are not the player");
+      return playerClient.error(401, 'You are not the player');
 
     if (message.stake > this.player_wealth)
       return playerClient.error(
@@ -195,7 +195,7 @@ export class VsRandomCasino extends Room<State> {
         `Player pull slot ${message.slot} is not in range [1,${SLOT_COUNT}]`
       );
 
-    console.log("🕹️", MESSAGE.PULL, message);
+    console.log('🕹️', MESSAGE.PULL, message);
 
     const player_switched = this.prev_pull?.slot !== message.slot;
     // Store pull data
@@ -225,7 +225,7 @@ export class VsRandomCasino extends Room<State> {
 
     this.pull_budget -= 1;
     this.player_wealth += outcome;
-    console.log("    OUTCOME", {
+    console.log('    OUTCOME', {
       outcome,
       wealth: this.player_wealth,
       pull_budget: this.pull_budget,

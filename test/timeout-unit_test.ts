@@ -1,12 +1,12 @@
-import appConfig from "../server/arena.config";
-import RandomClient from "../clients/typescript/Random";
+import appConfig from '../server/arena.config';
+import RandomClient from '../clients/typescript/Random';
 import {
   CasinoActionRequest,
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-} from "../server/types";
-import { boot, ColyseusTestServer } from "@colyseus/testing";
+} from '../server/types';
+import { boot, ColyseusTestServer } from '@colyseus/testing';
 
 const randomClient = new RandomClient();
 
@@ -39,7 +39,7 @@ const initClient = (room: any) => {
   });
 };
 
-describe("Timeout Unit Test", function () {
+describe('Timeout Unit Test', function () {
   this.timeout(10000);
 
   let colyseus: ColyseusTestServer;
@@ -49,14 +49,14 @@ describe("Timeout Unit Test", function () {
 
   beforeEach(async () => await colyseus.cleanup());
 
-  it("Run Game", async () => {
+  it('Run Game', async () => {
     // `room` is the server-side Room instance reference.
-    const room = await colyseus.createRoom("pvp", {});
+    const room = await colyseus.createRoom('pvp', {});
 
     // `client1` is the client-side `Room` instance reference (same as JavaScript SDK)
-    const casino = await colyseus.connectTo(room, { name: "P1" });
+    const casino = await colyseus.connectTo(room, { name: 'P1' });
     initClient(casino);
-    const player = await colyseus.connectTo(room, { name: "P2" });
+    const player = await colyseus.connectTo(room, { name: 'P2' });
     initClient(player);
 
     await Promise.race([

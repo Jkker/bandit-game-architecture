@@ -22,7 +22,7 @@ class State extends schema_1.Schema {
     }
 }
 __decorate([
-    (0, schema_1.type)("number")
+    (0, schema_1.type)('number')
 ], State.prototype, "wealth", void 0);
 class VsRandomCasino extends colyseus_1.Room {
     constructor() {
@@ -49,14 +49,14 @@ class VsRandomCasino extends colyseus_1.Room {
         this.onMessage(types_1.MESSAGE.PULL, this.pull.bind(this));
     }
     onJoin(client, options) {
-        console.log("👨 Player Joined:", options.name, client.sessionId);
+        console.log('👨 Player Joined:', options.name, client.sessionId);
         // lock this room for new users
         this.lock();
         this.player = {
             id: client.sessionId,
             name: options.name,
             client: client,
-            timer: this.clock.setTimeout(() => this.end("Player Timed Out"), config_1.TIME_LIMIT),
+            timer: this.clock.setTimeout(() => this.end('Player Timed Out'), config_1.TIME_LIMIT),
         };
         this.player.timer.pause();
         // Casino has sent initial winning slot
@@ -64,13 +64,13 @@ class VsRandomCasino extends colyseus_1.Room {
         return;
     }
     onLeave(client, consented) {
-        console.log(client.sessionId, "left!");
+        console.log(client.sessionId, 'left!');
         this.broadcast(types_1.MESSAGE.GAME_OVER, {
             player_wealth: this.player_wealth,
         });
     }
     onDispose() {
-        console.log("room", this.roomId, "disposing...");
+        console.log('room', this.roomId, 'disposing...');
     }
     // END_SECTION Lifecycle Methods
     // SECTION Event Emitters
@@ -103,7 +103,7 @@ class VsRandomCasino extends colyseus_1.Room {
             player_wealth: this.player_wealth,
             reason,
         };
-        console.log("🛑 GAME ENDED", payload);
+        console.log('🛑 GAME ENDED', payload);
         this.broadcast(types_1.MESSAGE.GAME_OVER, payload);
         this.disconnect();
     }
@@ -114,7 +114,7 @@ class VsRandomCasino extends colyseus_1.Room {
         // Casino exceeded max number of switches
         if (this.switch_budget <= 0 && slot !== 0)
             // ignore this error and continue without returning
-            console.log(400, "Casino exceeded max number of switches");
+            console.log(400, 'Casino exceeded max number of switches');
         if (this.switch_budget > 0 && slot !== 0) {
             this.switch_budget -= 1;
             this.winning_slot = slot;
@@ -134,7 +134,7 @@ class VsRandomCasino extends colyseus_1.Room {
         this.player.timer.pause();
         // Guards
         if (playerClient.sessionId !== this.player.id)
-            return playerClient.error(401, "You are not the player");
+            return playerClient.error(401, 'You are not the player');
         if (message.stake > this.player_wealth)
             return playerClient.error(400, `Player pull stake ${message.stake} exceeded current wealth of ${this.player_wealth}`);
         if (message.stake > config_1.MAX_PULL_STAKE)
@@ -145,7 +145,7 @@ class VsRandomCasino extends colyseus_1.Room {
             return this.end(`Player decided to stop`);
         if (message.slot > config_1.SLOT_COUNT || message.slot < 1)
             return playerClient.error(400, `Player pull slot ${message.slot} is not in range [1,${config_1.SLOT_COUNT}]`);
-        console.log("🕹️", types_1.MESSAGE.PULL, message);
+        console.log('🕹️', types_1.MESSAGE.PULL, message);
         const player_switched = ((_a = this.prev_pull) === null || _a === void 0 ? void 0 : _a.slot) !== message.slot;
         // Store pull data
         this.prev_pull = {
@@ -169,7 +169,7 @@ class VsRandomCasino extends colyseus_1.Room {
         });
         this.pull_budget -= 1;
         this.player_wealth += outcome;
-        console.log("    OUTCOME", {
+        console.log('    OUTCOME', {
             outcome,
             wealth: this.player_wealth,
             pull_budget: this.pull_budget,

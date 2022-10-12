@@ -6,11 +6,17 @@
  * If you're self-hosting (without Arena), you can manually instantiate a
  * Colyseus Server as documented here: 👉 https://docs.colyseus.io/server/api/#constructor-options
  */
-import { listen } from "@colyseus/arena";
+import { listen } from '@colyseus/arena';
+import { connect } from 'mongoose';
 
 // Import arena config
-import arenaConfig from "./arena.config";
-import { PORT } from "./config";
+import arenaConfig from './arena.config';
+import { MONGODB_URI, PORT, PRODUCTION } from './config';
 
 // Create and listen on 22222 (or PORT environment variable.)
-listen(arenaConfig, PORT);
+if (PRODUCTION)
+  connect(MONGODB_URI).then((db) => {
+    console.log(`🔵 SERVER | connected to ${db.connection.name}`);
+    listen(arenaConfig, PORT);
+  });
+else listen(arenaConfig, PORT);

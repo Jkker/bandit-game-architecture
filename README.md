@@ -38,11 +38,11 @@
    npm install
    ```
 4. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
-    | Language | Template                                                          |
-    | -------- | ----------------------------------------------------------------- |
-    | `C++`    | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)          |
-    | `Java`   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java)      |
-    | `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) |
+   | Language | Template |
+   | -------- | ----------------------------------------------------------------- |
+   | `C++` | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp) |
+   | `Java` | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) |
+   | `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) |
 
    You should compile it to an executable binary if needed.
 
@@ -101,8 +101,6 @@ optional arguments:
   -j JOIN, --join JOIN  Join a private room by room id (default: undefined)
   -v, --verbose         Display client and server communication (default: false)
 ```
-
-
 
 ## Client Development
 
@@ -213,7 +211,7 @@ Example: `command: 5 2`
 
 ## Server Usage
 
-You can use the public server at `wss://bandit.erry.dev` to play the game. However, you can also run your own server locally if you want to.
+The driver uses the public game server at `wss://bandit.erry.dev` by default. If needed, you can run your own server locally.
 
 ```sh
 npm run start
@@ -225,7 +223,7 @@ With environment variable overrides
 SLOT_COUNT=3 SWITCH_BUDGET=10 PORT=8080 npm run start
 ```
 
-You can also edit [`dist/development.env`](dist/development.env) to change the environment variable values. They will be loaded when you run `npm run start`.
+You can also edit [`development.env`](development.env) to edit the environment variable. They will be loaded automatically when you run `npm run start`.
 
 ## Server Development
 

@@ -5,6 +5,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -15,6 +24,7 @@ const colyseus_1 = require("colyseus");
 const weighted_1 = __importDefault(require("weighted"));
 const config_1 = require("./config");
 const types_1 = require("./types");
+const GameRecord_1 = require("./model/GameRecord");
 class State extends schema_1.Schema {
     constructor() {
         super(...arguments);
@@ -45,13 +55,13 @@ class MyRoom extends colyseus_1.Room {
     // SECTION Lifecycle Methods
     onCreate(options) {
         this.setState(new State());
+        if (options.isPrivate) {
+            this.setPrivate();
+        }
         this.onMessage(types_1.MESSAGE.SWITCH, this.switch.bind(this));
         this.onMessage(types_1.MESSAGE.PULL, this.pull.bind(this));
     }
     onJoin(client, options) {
-        if (options.isPrivate) {
-            this.setPrivate();
-        }
         // 1st Player
         if (!this.casino) {
             console.log('🏦 Casino Joined:', options.name, client.sessionId);
@@ -97,8 +107,27 @@ class MyRoom extends colyseus_1.Room {
             player_wealth: this.player_wealth,
         });
     }
+    save() {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            const log = new GameRecord_1.GameRecord({
+                casino: (_a = this.casino.name) !== null && _a !== void 0 ? _a : 'Unknown Casino',
+                player: (_b = this.player.name) !== null && _b !== void 0 ? _b : 'Unknown Player',
+                player_wealth: this.player_wealth,
+                switch_budget: this.switch_budget,
+                pull_budget: this.pull_budget,
+                end_reason: (_c = this.end_reason) !== null && _c !== void 0 ? _c : 'Unknown',
+            });
+            yield log.save();
+            console.log('📝 Saved Game Record');
+        });
+    }
     onDispose() {
-        console.log('room', this.roomId, 'disposing...');
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('room', this.roomId, 'disposing...');
+            if (config_1.PRODUCTION)
+                yield this.save();
+        });
     }
     // END_SECTION Lifecycle Methods
     // SECTION Event Emitters
@@ -126,6 +155,7 @@ class MyRoom extends colyseus_1.Room {
             player_wealth: this.player_wealth,
             reason,
         };
+        this.end_reason = reason;
         console.log('🛑 GAME ENDED', payload);
         this.broadcast(types_1.MESSAGE.GAME_OVER, payload);
         this.disconnect();

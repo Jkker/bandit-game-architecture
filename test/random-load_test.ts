@@ -1,12 +1,12 @@
-import { Room, Client } from "colyseus.js";
-import RandomClient from "../clients/typescript/Random";
+import { Room, Client } from 'colyseus.js';
+import RandomClient from '../clients/typescript/Random';
 
 import {
   CasinoActionRequest,
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-} from "../server/types";
+} from '../server/types';
 
 const randomClient = new RandomClient();
 
@@ -43,18 +43,18 @@ export function requestJoinOptions(this: Client, i: number) {
 }
 
 export function onJoin(this: Room) {
-  console.log(this.sessionId, "joined.");
+  console.log(this.sessionId, 'joined.');
   initClient(this);
 }
 
 export function onLeave(this: Room) {
-  console.log(this.sessionId, "left.");
+  console.log(this.sessionId, 'left.');
 }
 
 export function onError(this: Room, err: any) {
-  console.log(this.sessionId, "!! ERROR !!", err.message);
+  console.log(this.sessionId, '!! ERROR !!', err.message);
 }
 
 export function onStateChange(this: Room, state: any) {
-  console.log(this.sessionId, "new state:", state);
+  console.log(this.sessionId, 'new state:', state);
 }

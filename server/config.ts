@@ -1,4 +1,4 @@
-import { config } from "dotenv";
+import { config } from 'dotenv';
 
 config();
 
@@ -21,6 +21,10 @@ const WIN_RATE = {
   WINNING: 0.6,
 };
 
+const PRODUCTION = process.env.NODE_ENV === 'production';
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
 export {
   SLOT_COUNT,
   INIT_SWITCH_BUDGET,
@@ -30,4 +34,6 @@ export {
   TIME_LIMIT,
   PORT,
   MAX_PULL_STAKE,
+  PRODUCTION,
+  MONGODB_URI,
 };

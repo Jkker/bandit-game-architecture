@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "bandit-architecture",
-  "version": "2022.10.12.0",
+  "version": "2022.10.12.1",
   "description": "NYU Heuristic Problem Solving Bandit Game Architecture",
   "main": "dist/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "deploy": "npm run build && pm2 startOrRestart ecosystem.config.js",
     "dev": "ts-node-dev --respawn --transpile-only server/index.ts",
     "loadtest": "colyseus-loadtest test/random-load_test.ts --room pvp --numClients 1000 --endpoint wss://bandit.erry.dev",
-    "build": "node node_modules/rimraf/bin dist && tsc && node node_modules/copyfiles/copyfiles package.json ./dist && node node_modules/copyfiles/copyfiles *.env ./dist",
+    "build": "node node_modules/rimraf/bin dist && tsc",
     "clean": "node node_modules/rimraf/bin *.log *.bkp",
     "test": "mocha --require ts-node/register test/**-unit_test.ts --exit --timeout 15000",
     "proxy": "node clients/proxy.js"
@@ -45,6 +45,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-basic-auth": "^1.2.1",
+    "mongoose": "^6.6.5",
     "weighted": "^1.0.0"
   }
 }

@@ -15,35 +15,35 @@ const express_basic_auth_1 = __importDefault(require("express-basic-auth"));
 const basicAuthMiddleware = (0, express_basic_auth_1.default)({
     // list of users and passwords
     users: {
-        admin: "admin",
+        admin: 'admin',
     },
     // sends WWW-Authenticate header, which will prompt the user to fill
     // credentials in
     challenge: true,
 });
 exports.default = (0, arena_1.default)({
-    getId: () => "Bandit Game Server v2022.10.10",
+    getId: () => 'Bandit Game Server v2022.10.10',
     initializeGameServer: (gameServer) => {
         /**
          * Define your room handlers:
          */
-        gameServer.define("pvp", room_1.MyRoom);
-        gameServer.define("vs_random_player", vsRandomPlayer_1.VsRandomPlayer);
-        gameServer.define("vs_random_casino", vsRandomCasino_1.VsRandomCasino);
+        gameServer.define('pvp', room_1.MyRoom);
+        gameServer.define('vs_random_player', vsRandomPlayer_1.VsRandomPlayer);
+        gameServer.define('vs_random_casino', vsRandomCasino_1.VsRandomCasino);
     },
     initializeExpress: (app) => {
         /**
          * Bind your custom express routes here:
          */
-        app.get("/", (req, res) => {
-            res.redirect("https://github.com/Jkker/bandit-game-architecture");
+        app.get('/', (req, res) => {
+            res.redirect('https://github.com/Jkker/bandit-game-architecture');
         });
         /**
          * Bind @colyseus/monitor
          * It is recommended to protect this route with a password.
          * Read more: https://docs.colyseus.io/tools/monitor/
          */
-        app.use("/colyseus", basicAuthMiddleware, (0, monitor_1.monitor)());
+        app.use('/colyseus', basicAuthMiddleware, (0, monitor_1.monitor)());
     },
     beforeListen: () => {
         /**

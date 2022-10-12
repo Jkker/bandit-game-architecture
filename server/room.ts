@@ -6,20 +6,23 @@ import {
   INIT_PLAYER_WEALTH,
   INIT_PULL_BUDGET,
   INIT_SWITCH_BUDGET,
+  MAX_PULL_STAKE,
+  PRODUCTION,
   SLOT_COUNT,
   TIME_LIMIT,
   WIN_RATE,
-  MAX_PULL_STAKE,
 } from './config';
 
 import {
   CasinoActionRequest,
   CasinoActionResponse,
+  EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
   PlayerActionResponse,
-  EndGameRequest,
 } from './types';
+
+import { GameRecord } from './model/GameRecord';
 
 class State extends Schema {
   @type('number') wealth: number = 0;
@@ -54,6 +57,8 @@ export class MyRoom extends Room<State> {
     slot: number;
     stake: number;
   };
+  end_reason?: string;
+
   // END_SECTION Game States
 
   // SECTION Lifecycle Methods
@@ -127,8 +132,22 @@ export class MyRoom extends Room<State> {
     });
   }
 
-  onDispose() {
+  async save() {
+    const log = new GameRecord({
+      casino: this.casino.name ?? 'Unknown Casino',
+      player: this.player.name ?? 'Unknown Player',
+      player_wealth: this.player_wealth,
+      switch_budget: this.switch_budget,
+      pull_budget: this.pull_budget,
+      end_reason: this.end_reason ?? 'Unknown',
+    });
+    await log.save();
+    console.log('📝 Saved Game Record');
+  }
+
+  async onDispose() {
     console.log('room', this.roomId, 'disposing...');
+    if (PRODUCTION) await this.save();
   }
   // END_SECTION Lifecycle Methods
 
@@ -160,6 +179,7 @@ export class MyRoom extends Room<State> {
       player_wealth: this.player_wealth,
       reason,
     };
+    this.end_reason = reason;
     console.log('🛑 GAME ENDED', payload);
     this.broadcast(MESSAGE.GAME_OVER, payload);
     this.disconnect();

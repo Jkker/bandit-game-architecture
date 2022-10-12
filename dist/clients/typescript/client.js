@@ -30,10 +30,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Colyseus = __importStar(require("colyseus.js"));
 const types_1 = require("../../server/types");
 const Random_1 = __importDefault(require("./Random"));
-const client = new Colyseus.Client("ws://localhost:22222");
+const client = new Colyseus.Client('ws://localhost:22222');
 client
-    .joinOrCreate("vs_random_casino", {
-    name: "Random Client",
+    .joinOrCreate('vs_random_casino', {
+    name: 'Random Client',
 })
     .then((room) => {
     const randomClient = new Random_1.default();
@@ -61,5 +61,5 @@ client
     });
 })
     .catch((e) => {
-    console.log("JOIN ERROR", e);
+    console.log('JOIN ERROR', e);
 });
