@@ -102,10 +102,12 @@ class MyRoom extends colyseus_1.Room {
         }
     }
     onLeave(client, consented) {
-        console.log(client.sessionId, 'left!');
-        this.broadcast(types_1.MESSAGE.GAME_OVER, {
-            player_wealth: this.player_wealth,
-        });
+        if (this.casino && this.casino.id === client.sessionId) {
+            this.end(`Casino ${this.casino.name} Left`);
+        }
+        if (this.player && this.player.id === client.sessionId) {
+            this.end(`Player ${this.player.name} Left`);
+        }
     }
     save() {
         var _a, _b, _c;
@@ -119,7 +121,7 @@ class MyRoom extends colyseus_1.Room {
                 end_reason: (_c = this.end_reason) !== null && _c !== void 0 ? _c : 'Unknown',
             });
             yield log.save();
-            console.log('📝 Saved Game Record');
+            console.log('📝 Saved Game Record', log.toObject());
         });
     }
     onDispose() {

@@ -18,8 +18,10 @@ const arena_config_1 = __importDefault(require("./arena.config"));
 const config_1 = require("./config");
 // Create and listen on 22222 (or PORT environment variable.)
 if (config_1.PRODUCTION)
-    (0, mongoose_1.connect)(config_1.MONGODB_URI).then((db) => {
-        console.log(`🔵 SERVER | connected to ${db.connection.name}`);
+    (0, mongoose_1.connect)(config_1.MONGODB_URI, {
+        useNewUrlParser: true,
+    }, () => {
+        console.log(`🔵 SERVER | connected to db`);
         (0, arena_1.listen)(arena_config_1.default, config_1.PORT);
     });
 else

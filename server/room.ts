@@ -126,10 +126,12 @@ export class MyRoom extends Room<State> {
   }
 
   onLeave(client: Client, consented: boolean) {
-    console.log(client.sessionId, 'left!');
-    this.broadcast(MESSAGE.GAME_OVER, {
-      player_wealth: this.player_wealth,
-    });
+    if (this.casino && this.casino.id === client.sessionId) {
+      this.end(`Casino ${this.casino.name} Left`);
+    }
+    if (this.player && this.player.id === client.sessionId) {
+      this.end(`Player ${this.player.name} Left`);
+    }
   }
 
   async save() {
