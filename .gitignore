@@ -6,3 +6,4 @@ pnpm-lock.yml
 *.log
 __pycache__
 *.out
+arena.env
