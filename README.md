@@ -220,7 +220,7 @@ npm run start
 With environment variable overrides
 
 ```sh
-SLOT_COUNT=3 SWITCH_BUDGET=10 PORT=8080 npm run start
+SLOT_COUNT=3 INIT_SWITCH_BUDGET=10 PORT=8080 npm run start
 ```
 
 You can also edit [`development.env`](development.env) to edit the environment variable. They will be loaded automatically when you run `npm run start`.
