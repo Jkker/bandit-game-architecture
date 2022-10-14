@@ -105,6 +105,12 @@ export class MyRoom extends Room<State> {
     if (!this.player) {
       if (!PRODUCTION)
         console.log('👨 Player Joined:', options.name, client.sessionId);
+      console.log(
+        '🎰 Game Started: ',
+        `${this.casino.name}(Casino)`,
+        'VS',
+        `${this.player.name}(Player)`
+      );
 
       // lock this room for new users
       this.lock();
@@ -195,7 +201,11 @@ export class MyRoom extends Room<State> {
       reason,
     };
     this.end_reason = reason;
-    if (!PRODUCTION) console.log('🛑 GAME ENDED', payload);
+    if (!PRODUCTION)
+      console.log('🛑 GAME ENDED', {
+        ...payload,
+        player: this.player.name,
+      });
     this.broadcast(MESSAGE.GAME_OVER, payload);
     this.disconnect();
   }
