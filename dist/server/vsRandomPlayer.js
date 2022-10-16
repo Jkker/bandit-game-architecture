@@ -107,6 +107,8 @@ class VsRandomPlayer extends colyseus_1.Room {
         const payload = {
             player_wealth: this.player_wealth,
             reason,
+            player: this.player.name,
+            casino: this.casino.name,
         };
         console.log('🛑 GAME ENDED', payload);
         this.broadcast(types_1.MESSAGE.GAME_OVER, payload);

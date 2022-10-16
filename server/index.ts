@@ -11,7 +11,17 @@ import { connect } from 'mongoose';
 
 // Import arena config
 import arenaConfig from './arena.config';
-import { MONGODB_URI, PORT, PRODUCTION } from './config';
+import {
+  MONGODB_URI,
+  PORT,
+  PRODUCTION,
+  SLOT_COUNT,
+  INIT_SWITCH_BUDGET,
+} from './config';
+
+console.log(
+  `🔵 SERVER | Slots: ${SLOT_COUNT}, Switches: ${INIT_SWITCH_BUDGET}`
+);
 
 // Create and listen on 22222 (or PORT environment variable.)
 if (PRODUCTION) {

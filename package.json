@@ -9,10 +9,12 @@
     "deploy": "npm run build && pm2 startOrRestart ecosystem.config.js",
     "dev": "ts-node-dev --respawn --transpile-only server/index.ts",
     "loadtest": "colyseus-loadtest test/random-load_test.ts --room pvp --numClients 1000 --endpoint wss://bandit.erry.dev",
-    "build": "node node_modules/rimraf/bin dist && tsc",
+    "build": "node node_modules/rimraf/bin dist && tsc && cp *.env dist",
     "clean": "node node_modules/rimraf/bin *.log *.bkp",
     "test": "mocha --require ts-node/register test/**-unit_test.ts --exit --timeout 15000",
-    "proxy": "node clients/proxy.js"
+    "proxy": "node clients/proxy.js",
+    "g": "node bandit-game-agents/run.js",
+    "tournament": "npm run build && node dist/driver/tournament.js"
   },
   "author": "Jkker",
   "license": "MIT",

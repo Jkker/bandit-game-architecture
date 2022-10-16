@@ -32,27 +32,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Driver = void 0;
 const argparse_1 = require("argparse");
 const child_process_1 = require("child_process");
 const Colyseus = __importStar(require("colyseus.js"));
 const readline_1 = require("readline");
 const types_1 = require("../server/types");
-const log = (message, data, isError = false) => {
-    if (isError) {
-        if (data)
-            console.error(`⚠️  DRIVER | ${message}: ${JSON.stringify(data)}`);
-        else
-            console.error(`⚠️  DRIVER | ${message}`);
-    }
-    else {
-        if (data)
-            console.log(`🔵 DRIVER | ${message}: ${JSON.stringify(data)}`);
-        else
-            console.log(`🔵 DRIVER | ${message}`);
-    }
-};
 class Driver {
-    constructor(command, { serverURI, name, room, verbose, isPrivate, roomId, }) {
+    constructor(command, { serverURI, name, room, roomId, isPrivate = false, verbose = false, quiet = false, gameOverCallback = () => { }, cli = false, }) {
         this.name = 'stdio_driver';
         const cmdList = command.split(' ');
         const executable = cmdList[0];
@@ -65,6 +52,25 @@ class Driver {
         this.verbose = verbose;
         this.executable = executable;
         this.args = cmdArgs;
+        this.gameOverCallback = gameOverCallback;
+        this.quiet = quiet;
+        this.isCli = cli;
+    }
+    log(message, data, isError = false) {
+        if (this.quiet)
+            return;
+        if (isError) {
+            if (data)
+                console.error(`⚠️  DRIVER | ${message}: ${JSON.stringify(data)}`);
+            else
+                console.error(`⚠️  DRIVER | ${message}`);
+        }
+        else {
+            if (data)
+                console.log(`🔵 DRIVER | ${message}: ${JSON.stringify(data)}`);
+            else
+                console.log(`🔵 DRIVER | ${message}`);
+        }
     }
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -75,18 +81,18 @@ class Driver {
                         name: this.name,
                         isPrivate: true,
                     });
-                    log(`✅ Created private room ${this.server.id} (use "-j ${this.server.id}" to join this room)`);
-                    return;
+                    this.log(`✅ Created private room ${this.server.id} (use "-j ${this.server.id}" to join this room)`);
+                    return this.server.id;
                 }
                 if (this.roomId) {
                     try {
                         this.server = yield client.joinById(this.roomId, {
                             name: this.name,
                         });
-                        log(`✅ Joined private room ${this.server.id}`);
+                        this.log(`✅ Joined private room ${this.server.id}`);
                     }
                     catch (e) {
-                        log(`Failed to join private room ${this.roomId}. Does this room ID exit?`, e, true);
+                        this.log(`Failed to join private room ${this.roomId}. Does this room ID exit?`, e, true);
                         process.exit(1);
                     }
                     return;
@@ -96,10 +102,10 @@ class Driver {
                     isPrivate: this.isPrivate,
                 });
                 if (this.verbose)
-                    log(`✅ connected to game server`);
+                    this.log(`✅ connected to game server`);
             }
             catch (e) {
-                log('error connecting to the game server', e, true);
+                this.log('error connecting to the game server', e, true);
                 process.exit(1);
             }
         });
@@ -108,7 +114,7 @@ class Driver {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => this.client.stdin.write(data + '\n', (err) => {
                 if (this.verbose)
-                    log(`sent to client`, data);
+                    this.log(`sent to client`, data);
                 if (err)
                     return reject(err);
                 return resolve();
@@ -117,15 +123,14 @@ class Driver {
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.connect();
             this.client = (0, child_process_1.spawn)(this.executable, this.args);
             this.outFeed = (0, readline_1.createInterface)({ input: this.client.stdout });
             this.errFeed = (0, readline_1.createInterface)({ input: this.client.stderr });
             this.outFeed.on('line', (line) => {
-                // if (this.verbose) log(`received from client`, line);
                 const trimmed = line.trim();
                 if (!trimmed.startsWith('command:')) {
-                    console.log(`💡 CLIENT: ${line}`);
+                    if (!this.quiet)
+                        console.log(`💡 CLIENT: ${line}`);
                     return;
                 }
                 try {
@@ -139,7 +144,7 @@ class Driver {
                         case types_1.MESSAGE_INT.SWITCH:
                             this.server.send(types_1.MESSAGE.SWITCH, arr[1]);
                             if (this.verbose)
-                                log(`sent to server`, `${types_1.MESSAGE.SWITCH} ${arr[1]}`);
+                                this.log(`sent to server`, `${types_1.MESSAGE.SWITCH} ${arr[1]}`);
                             break;
                         case types_1.MESSAGE_INT.PULL:
                             this.server.send(types_1.MESSAGE.PULL, {
@@ -147,7 +152,7 @@ class Driver {
                                 stake: arr[2],
                             });
                             if (this.verbose)
-                                log(`sent to server`, `${types_1.MESSAGE.PULL} ${JSON.stringify({
+                                this.log(`sent to server`, `${types_1.MESSAGE.PULL} ${JSON.stringify({
                                     slot: arr[1],
                                     stake: arr[2],
                                 })}`);
@@ -155,21 +160,20 @@ class Driver {
                     }
                 }
                 catch (e) {
-                    log('error parsing client output', e, true);
+                    this.log('error parsing client output', e, true);
                 }
             });
             this.errFeed.on('line', (line) => {
-                if (this.verbose)
-                    log(`received from client`, line, true);
+                this.log(`Client Error`, line, true);
             });
             this.client.on('close', (code, signal) => {
                 if (this.verbose)
-                    log(`client exited with signal ${signal}`);
+                    this.log(`client exited with signal ${signal}`);
             });
             this.server.onMessage('*', (type, data) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     if (this.verbose)
-                        log(`received from server`, { type, data });
+                        this.log(`received from server`, { type, data });
                     switch (type) {
                         case types_1.MESSAGE.AWAIT_CASINO_INIT: {
                             yield this.writeToClient([0, data.switch_budget, data.slot_count, data.player_wealth].join(' '));
@@ -192,66 +196,81 @@ class Driver {
                         case types_1.MESSAGE.GAME_OVER: {
                             yield this.writeToClient([3, data.player_wealth].join(' '));
                             this.server.leave();
-                            console.log('🛑 GAME OVER', data);
-                            process.exit(0);
+                            if (!this.quiet)
+                                console.log('🛑 GAME OVER', data);
+                            this.gameOverCallback(data);
+                            this.client.kill();
+                            if (this.isCli)
+                                process.exit(0);
                         }
                     }
                     // await this.writeToClient(JSON.stringify({ type, data }));
                 }
                 catch (e) {
                     if (this.verbose)
-                        log('error sending message to client');
+                        this.log('error sending message to client');
                 }
             }));
         });
     }
 }
-const parser = new argparse_1.ArgumentParser({
-    description: 'STDIO-based driver for Bandit Game Clients',
-    formatter_class: argparse_1.ArgumentDefaultsHelpFormatter,
-    add_help: true,
-});
-parser.add_argument('command', {
-    help: 'Command to run your client (e.g. python3 my_client.py)',
-    nargs: 1,
-});
-parser.add_argument('-n', '--name', {
-    help: 'Your client name',
-    default: 'anonymous',
-});
-parser.add_argument('-r', '--room', {
-    help: 'Type of room to join',
-    choices: ['pvp', 'vs_random_player', 'vs_random_casino'],
-    default: 'pvp',
-});
-parser.add_argument('-p', '--private', {
-    help: 'Create a private pvp room and get the room id',
-    action: 'store_true',
-});
-parser.add_argument('-j', '--join', {
-    help: 'Join a private room by room id',
-});
-parser.add_argument('-s', '--server', {
-    help: 'URI of the game server',
-    default: 'wss://bandit.erry.dev',
-});
-parser.add_argument('-v', '--verbose', {
-    help: 'Display client and server communication',
-    action: 'store_true',
-});
-const args = parser.parse_args();
-if (args.private && args.room !== 'pvp') {
-    console.error('Only pvp rooms can be set to private');
-    process.exit(1);
+exports.Driver = Driver;
+const getArgs = () => {
+    const parser = new argparse_1.ArgumentParser({
+        description: 'STDIO-based driver for Bandit Game Clients',
+        formatter_class: argparse_1.ArgumentDefaultsHelpFormatter,
+        add_help: true,
+    });
+    parser.add_argument('command', {
+        help: 'Command to run your client (e.g. python3 my_client.py)',
+        nargs: 1,
+    });
+    parser.add_argument('-n', '--name', {
+        help: 'Your client name',
+        default: 'anonymous',
+    });
+    parser.add_argument('-r', '--room', {
+        help: 'Type of room to join',
+        choices: ['pvp', 'vs_random_player', 'vs_random_casino'],
+        default: 'pvp',
+    });
+    parser.add_argument('-p', '--private', {
+        help: 'Create a private pvp room and get the room id',
+        action: 'store_true',
+    });
+    parser.add_argument('-j', '--join', {
+        help: 'Join a private room by room id',
+    });
+    parser.add_argument('-s', '--server', {
+        help: 'URI of the game server',
+        default: 'wss://bandit.erry.dev',
+    });
+    parser.add_argument('-v', '--verbose', {
+        help: 'Display client and server communication',
+        action: 'store_true',
+    });
+    const args = parser.parse_args();
+    if (args.private && args.room !== 'pvp') {
+        console.error('Only pvp rooms can be set to private');
+        process.exit(1);
+    }
+    return args;
+};
+if (require.main === module) {
+    const args = getArgs();
+    console.log(`🔵 DRIVER | launching client`, args);
+    const driver = new Driver(args.command[0], {
+        serverURI: args.server,
+        name: args.name,
+        room: args.room,
+        verbose: args.verbose,
+        isPrivate: args.private,
+        roomId: args.join,
+        cli: true,
+        // verbose: true,
+    });
+    (() => __awaiter(void 0, void 0, void 0, function* () {
+        yield driver.connect();
+        yield driver.start();
+    }))();
 }
-log(`launching client`, args);
-const driver = new Driver(args.command[0], {
-    serverURI: args.server,
-    name: args.name,
-    room: args.room,
-    verbose: args.verbose,
-    isPrivate: args.private,
-    roomId: args.join,
-    // verbose: true,
-});
-driver.start();

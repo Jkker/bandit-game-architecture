@@ -43,6 +43,8 @@ export type CasinoActionResponse = number;
 export interface EndGameRequest {
   player_wealth: number;
   reason?: string;
+  casino: string;
+  player: string;
 }
 
 // Both min and max are inclusive

@@ -23,7 +23,7 @@ import {
 } from './types';
 
 import { GameRecord } from './model/GameRecord';
-
+import { saveRecord } from './db';
 class State extends Schema {
   @type('number') wealth: number = 0;
 }
@@ -105,12 +105,6 @@ export class MyRoom extends Room<State> {
     if (!this.player) {
       if (!PRODUCTION)
         console.log('👨 Player Joined:', options.name, client.sessionId);
-      console.log(
-        '🎰 Game Started: ',
-        `${this.casino.name}(Casino)`,
-        'VS',
-        `${this.player.name}(Player)`
-      );
 
       // lock this room for new users
       this.lock();
@@ -125,7 +119,13 @@ export class MyRoom extends Room<State> {
         ),
       };
       this.player.timer.pause();
-
+      if (!PRODUCTION)
+        console.log(
+          '🎰 Game Started: ',
+          `${this.casino.name}(Casino)`,
+          'VS',
+          `${this.player.name}(Player)`
+        );
       // Casino has sent initial winning slot
       if (this.winning_slot !== 0) {
         this.awaitPlayerAction();
@@ -167,7 +167,18 @@ export class MyRoom extends Room<State> {
 
   async onDispose() {
     if (!PRODUCTION) console.log('room', this.roomId, 'disposing...');
-    if (PRODUCTION) await this.save();
+    const record = {
+      casino: this.casino.name ?? 'Unknown Casino',
+      player: this.player.name ?? 'Unknown Player',
+      player_wealth: this.player_wealth,
+      switch_budget: this.switch_budget,
+      pull_budget: this.pull_budget,
+      end_reason: this.end_reason ?? 'Unknown',
+      timestamp: new Date().toISOString(),
+    };
+    saveRecord(record);
+
+    // if (PRODUCTION) await this.save();
   }
   // END_SECTION Lifecycle Methods
 
@@ -199,6 +210,8 @@ export class MyRoom extends Room<State> {
     const payload: EndGameRequest = {
       player_wealth: this.player_wealth,
       reason,
+      player: this.player.name,
+      casino: this.casino.name,
     };
     this.end_reason = reason;
     if (!PRODUCTION)
@@ -221,9 +234,9 @@ export class MyRoom extends Room<State> {
       return casinoClient.error(401, 'You are not the casino');
 
     // Casino exceeded max number of switches
-    if (this.switch_budget <= 0 && slot !== 0)
-      // ignore this error and continue without returning
-      casinoClient.error(400, 'Casino exceeded max number of switches');
+    // if (this.switch_budget <= 0 && slot !== 0)
+    // ignore this error and continue without returning
+    // casinoClient.error(400, 'Casino exceeded max number of switches');
 
     // Check if this is the initial assignment
     if (!this.winning_slot) {

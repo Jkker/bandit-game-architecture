@@ -25,6 +25,7 @@ const weighted_1 = __importDefault(require("weighted"));
 const config_1 = require("./config");
 const types_1 = require("./types");
 const GameRecord_1 = require("./model/GameRecord");
+const db_1 = require("./db");
 class State extends schema_1.Schema {
     constructor() {
         super(...arguments);
@@ -97,6 +98,8 @@ class MyRoom extends colyseus_1.Room {
                 timer: this.clock.setTimeout(() => this.end('Player Timed Out'), config_1.TIME_LIMIT),
             };
             this.player.timer.pause();
+            if (!config_1.PRODUCTION)
+                console.log('🎰 Game Started: ', `${this.casino.name}(Casino)`, 'VS', `${this.player.name}(Player)`);
             // Casino has sent initial winning slot
             if (this.winning_slot !== 0) {
                 this.awaitPlayerAction();
@@ -133,11 +136,20 @@ class MyRoom extends colyseus_1.Room {
         });
     }
     onDispose() {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             if (!config_1.PRODUCTION)
                 console.log('room', this.roomId, 'disposing...');
-            if (config_1.PRODUCTION)
-                yield this.save();
+            const record = {
+                casino: (_a = this.casino.name) !== null && _a !== void 0 ? _a : 'Unknown Casino',
+                player: (_b = this.player.name) !== null && _b !== void 0 ? _b : 'Unknown Player',
+                player_wealth: this.player_wealth,
+                switch_budget: this.switch_budget,
+                pull_budget: this.pull_budget,
+                end_reason: (_c = this.end_reason) !== null && _c !== void 0 ? _c : 'Unknown',
+                timestamp: new Date().toISOString(),
+            };
+            (0, db_1.saveRecord)(record);
         });
     }
     // END_SECTION Lifecycle Methods
@@ -166,10 +178,12 @@ class MyRoom extends colyseus_1.Room {
         const payload = {
             player_wealth: this.player_wealth,
             reason,
+            player: this.player.name,
+            casino: this.casino.name,
         };
         this.end_reason = reason;
         if (!config_1.PRODUCTION)
-            console.log('🛑 GAME ENDED', payload);
+            console.log('🛑 GAME ENDED', Object.assign(Object.assign({}, payload), { player: this.player.name }));
         this.broadcast(types_1.MESSAGE.GAME_OVER, payload);
         this.disconnect();
     }
@@ -182,9 +196,9 @@ class MyRoom extends colyseus_1.Room {
         if (casinoClient.sessionId !== this.casino.id)
             return casinoClient.error(401, 'You are not the casino');
         // Casino exceeded max number of switches
-        if (this.switch_budget <= 0 && slot !== 0)
-            // ignore this error and continue without returning
-            casinoClient.error(400, 'Casino exceeded max number of switches');
+        // if (this.switch_budget <= 0 && slot !== 0)
+        // ignore this error and continue without returning
+        // casinoClient.error(400, 'Casino exceeded max number of switches');
         // Check if this is the initial assignment
         if (!this.winning_slot) {
             // End game if initial assignment is invalid
