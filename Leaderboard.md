@@ -1,4 +1,4 @@
-# 🎰 2022 Leaderboard
+# 🎰 2022 Bandit Game Leaderboard
 
 Round-robin tournaments for the 2022 season
 
@@ -25,7 +25,6 @@ Round-robin tournaments for the 2022 season
 1626 games ended successfully, 54 games failed with errors
 
 
-
 ## Tournament 2: (slots=140, switches=20)
 
 | Rank | Team                 | Avg. Wealth | Casino Error % | Player Error % |
@@ -47,3 +46,12 @@ Round-robin tournaments for the 2022 season
 | 15   | Truman_Logan_Sparrow | 57550       |                |                |
 
 840 games ended successfully, 0 games failed with errors
+
+### Raw Game Records
+
+- [14_2_2022-10-15T23:59:49.504Z.json](logs/14_2_2022-10-15T23:59:49.504Z.json)
+- [14_2_2022-10-16T00:08:02.451Z.json](logs/14_2_2022-10-16T00:08:02.451Z.json)
+- [14_2_2022-10-16T00:58:08.604Z.json](logs/14_2_2022-10-16T00:58:08.604Z.json)
+- [14_2_2022-10-16T01:11:33.180Z.json](logs/14_2_2022-10-16T01:11:33.180Z.json)
+- [140_20_2022-10-15T23:22:52.536Z.json](logs/140_20_2022-10-15T23:22:52.536Z.json)
+- [140_20_2022-10-16T00:22:53.521Z.json](logs/140_20_2022-10-16T00:22:52.536Z.json)
