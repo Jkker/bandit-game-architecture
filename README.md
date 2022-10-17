@@ -1,3 +1,5 @@
+> 2022 Leaderboard can be found [here](Leaderboard.md)
+
 ## Table of Content
 
 - [Getting Started](#getting-started)

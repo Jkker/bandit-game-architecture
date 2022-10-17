@@ -13,7 +13,7 @@ const INIT_PULL_BUDGET = SLOT_COUNT * 500;
 
 const MAX_PULL_STAKE = 3;
 
-const TIME_LIMIT = 2 * 60 * 1000; // 2 minutes
+const TIME_LIMIT = 20 * 60 * 1000; // 2 minutes
 // const TIME_LIMIT = 2 * 1000;
 
 const WIN_RATE = {

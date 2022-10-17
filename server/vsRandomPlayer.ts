@@ -139,6 +139,8 @@ export class VsRandomPlayer extends Room<State> {
     const payload: EndGameRequest = {
       player_wealth: this.player_wealth,
       reason,
+      player: this.player.name,
+      casino: this.casino.name,
     };
     console.log('🛑 GAME ENDED', payload);
     this.broadcast(MESSAGE.GAME_OVER, payload);

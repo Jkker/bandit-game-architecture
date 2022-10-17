@@ -16,6 +16,7 @@ const mongoose_1 = require("mongoose");
 // Import arena config
 const arena_config_1 = __importDefault(require("./arena.config"));
 const config_1 = require("./config");
+console.log(`🔵 SERVER | Slots: ${config_1.SLOT_COUNT}, Switches: ${config_1.INIT_SWITCH_BUDGET}`);
 // Create and listen on 22222 (or PORT environment variable.)
 if (config_1.PRODUCTION) {
     (0, mongoose_1.connect)(config_1.MONGODB_URI, {
