@@ -156,8 +156,6 @@ const analyze = (data) => {
         ...val,
         casino_error: roundTo(100 - (val.casino_round / maxRound) * 100),
         player_error: roundTo(100 - (val.player_round / maxRound) * 100),
-        // casino_error: roundTo((val.casino_error / val.casino_round) * 100),
-        // player_error: roundTo((val.player_error / val.player_round) * 100),
         avg_wealth: Math.round(val.player_total_wealth / val.player_round),
       },
     ])
@@ -205,23 +203,3 @@ console.log(
   `# Tournament: slots=140, switches=20 (${data['140_20'].length} Games Played)\n`
 );
 analyze(data['140_20']);
-
-// for (const filename of files) {
-//   if (!filename.endsWith('.json')) continue;
-
-//   let [slots, switches, dt] = filename.split('_');
-
-//   const time = new Date(dt.replace('.json', ''));
-
-//   const hhmm = time.toLocaleTimeString();
-
-//   console.log(
-//     `## Tournament ${++tournamentCount}: ${slots} slots, ${switches.replace(
-//       '.json',
-//       ''
-//     )} switches @${hhmm}\n`
-//   );
-//   const data = loadData(filename);
-
-//   analyze(data);
-// }

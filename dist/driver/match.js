@@ -68,7 +68,7 @@ class Match {
                 // matches.push(this.match(this.p2, this.p1));
             }
             const startTime = Date.now();
-            console.log('Starting match:', this.p1.name, "VS", this.p2.name);
+            console.log('Starting match:', this.p1.name, 'VS', this.p2.name);
             yield Promise.all(matches);
             const endTime = Date.now();
             console.log('Finished match: ', this.p1.name, this.p2.name, `⏳ ${Math.round((endTime - startTime) / 100) / 10}s`);

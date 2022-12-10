@@ -118,7 +118,6 @@ class Tournament {
             for (const [p1, p2] of pairings) {
                 this.runMatch(p1, p2);
             }
-            // onExit();
         });
     }
 }

@@ -1,3 +1,14 @@
+# HPS Bandit Game Architecture
+
+## Features
+
+- [x] **PVP** (Private or Public)
+- [x] **PVE** (Casino vs Random Player or Random Casino vs Player)
+- [x] **Private Rooms** (Create or Join)
+- [x] **Customizable Server** (Self-hosted / Public)
+- [x] **Client API & Driver** (C++, Java, Python)
+- [x] **Tournament & Leaderboard** (Parallelized round-robin tournament with auto match making)
+
 > 2022 Leaderboard can be found [here](docs/Leaderboard22.md)
 
 ## Table of Content
@@ -56,6 +67,7 @@
 
    The driver will automatically connect to the public game server `wss://bandit.erry.dev` and start a game with your client.
    Please limit to 100 connections per IP address to avoid abuse.
+
 
 ## Driver Usage
 

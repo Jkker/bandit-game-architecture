@@ -24,8 +24,8 @@ const colyseus_1 = require("colyseus");
 const weighted_1 = __importDefault(require("weighted"));
 const config_1 = require("./config");
 const types_1 = require("./types");
-const GameRecord_1 = require("./model/GameRecord");
 const db_1 = require("./db");
+const GameRecord_1 = require("./model/GameRecord");
 class State extends schema_1.Schema {
     constructor() {
         super(...arguments);

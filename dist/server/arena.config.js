@@ -8,10 +8,10 @@ const monitor_1 = require("@colyseus/monitor");
 /**
  * Import your Room files
  */
-const room_1 = require("./room");
-const vsRandomPlayer_1 = require("./vsRandomPlayer");
-const vsRandomCasino_1 = require("./vsRandomCasino");
 const express_basic_auth_1 = __importDefault(require("express-basic-auth"));
+const room_1 = require("./room");
+const vsRandomCasino_1 = require("./vsRandomCasino");
+const vsRandomPlayer_1 = require("./vsRandomPlayer");
 const basicAuthMiddleware = (0, express_basic_auth_1.default)({
     // list of users and passwords
     users: {
