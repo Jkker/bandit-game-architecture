@@ -1,7 +1,7 @@
 import { ChildProcessWithoutNullStreams, fork, spawn } from 'child_process';
 import { createInterface } from 'readline';
 import { EndGameRequest as Result } from '../server/types';
-import teams, { Team, getCmd } from './teams';
+import teams, { getCmd, Team } from './teams';
 
 class Tournament {
   teams: Team[] = [];
@@ -114,8 +114,6 @@ class Tournament {
     for (const [p1, p2] of pairings) {
       this.runMatch(p1, p2);
     }
-
-    // onExit();
   }
 }
 

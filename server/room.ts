@@ -10,7 +10,7 @@ import {
   PRODUCTION,
   SLOT_COUNT,
   TIME_LIMIT,
-  WIN_RATE,
+  WIN_RATE
 } from './config';
 
 import {
@@ -19,11 +19,11 @@ import {
   EndGameRequest,
   MESSAGE,
   PlayerActionRequest,
-  PlayerActionResponse,
+  PlayerActionResponse
 } from './types';
 
-import { GameRecord } from './model/GameRecord';
 import { saveRecord } from './db';
+import { GameRecord } from './model/GameRecord';
 class State extends Schema {
   @type('number') wealth: number = 0;
 }

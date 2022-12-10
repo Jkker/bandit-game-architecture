@@ -14,11 +14,11 @@ import {
 import {
   CasinoActionRequest,
   CasinoActionResponse,
+  EndGameRequest,
+  getRandomInt,
   MESSAGE,
   PlayerActionRequest,
   PlayerActionResponse,
-  EndGameRequest,
-  getRandomInt,
 } from './types';
 
 class State extends Schema {

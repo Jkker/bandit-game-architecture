@@ -67,7 +67,7 @@ class Match {
       // matches.push(this.match(this.p2, this.p1));
     }
     const startTime = Date.now();
-    console.log('Starting match:', this.p1.name, "VS", this.p2.name);
+    console.log('Starting match:', this.p1.name, 'VS', this.p2.name);
     await Promise.all(matches);
     const endTime = Date.now();
     console.log(

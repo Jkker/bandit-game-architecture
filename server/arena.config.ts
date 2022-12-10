@@ -4,10 +4,10 @@ import { monitor } from '@colyseus/monitor';
 /**
  * Import your Room files
  */
-import { MyRoom } from './room';
-import { VsRandomPlayer } from './vsRandomPlayer';
-import { VsRandomCasino } from './vsRandomCasino';
 import basicAuth from 'express-basic-auth';
+import { MyRoom } from './room';
+import { VsRandomCasino } from './vsRandomCasino';
+import { VsRandomPlayer } from './vsRandomPlayer';
 
 const basicAuthMiddleware = basicAuth({
   // list of users and passwords

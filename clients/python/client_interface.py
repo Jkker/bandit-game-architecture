@@ -1,74 +1,33 @@
 # -*- coding: UTF-8 -*-
 
-import atexit
-import socket
-import json
-import subprocess
 import os
-import time
+
+
+class EVENT_TYPE:
+    """Event & Action types"""
+    AWAIT_CASINO_INIT = 0
+    AWAIT_CASINO = 1
+    AWAIT_PLAYER = 2
+    GAME_OVER = 3
+    PULL = 4
+    SWITCH = 5
+    COMMAND_PREFIX = "command:"
 
 
 class BanditClientInterface:
     """Bandit Game Python 3 Client Template
     """
 
-    def __init__(self, name="python_client", debug=False) -> None:
+    def __init__(self, debug=False) -> None:
         """Bandit Game Python 3 Client Constructor
-
-        Args:
-            name (str, optional): client name. Defaults to "python_client".
-            debug (bool, optional): whether to print connection debug messages. Defaults to False.
         """
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.client_process = None
-        self.name = name
         self.debug = debug
 
-    def start(self,
-              unix_socket_path='/tmp/bandit.sock',
-              server_uri="ws://localhost:22222",
-              room="vs_random_player") -> None:
+    def start(self) -> None:
         """Start the client
-
-        Launches the proxy server to establish a connection to the game server
-
-        Args:
-            unix_socket_path (str, optional): path to a temp file for the unix domain socket. Defaults to `/tmp/bandit.sock`. If the file already exists, a new file will be created with a random suffix.
-            server_uri (str, optional): uri to the game server. Defaults to "ws://localhost:22222".
-            room (str, optional): room to join ("pvp", "vs_random_player", "vs_random_casino"). Defaults to "vs_random_player".
         """
-        # if os.path.exists(unix_socket_path):
-        #     # os.remove(unix_socket_path)
-        #     self.unix_socket_path = unix_socket_path + "." + str(time.time())
-        #     if self.debug: print("unix_socket_path", self.unix_socket_path)
-
-        # else:
-        self.unix_socket_path = unix_socket_path
-
-        # Pipe stdout to /dev/null; stderr are printed to console
-        # stdout is displayed if debug mode is enabled
-        self.client_process = subprocess.Popen(
-            ['node', 'clients/proxy.js', self.unix_socket_path],
-            stdout=None if self.debug else subprocess.DEVNULL,
-        )
-
-        time.sleep(0.1)
-        self.sock.connect(unix_socket_path)
-        if self.debug: print('✅ Successfully connected to proxy')
-        self.send('CONNECTED', {
-            "name": self.name,
-            "server_uri": server_uri,
-            "room": room,
-            "debug": self.debug
-        })
-
-        # Register exit handler
-        atexit.register(self.exit)
-
         while True:
-            message = self.sock.recv(1024)
-            if not message:
-                break
+            message = input()
             self.on_message(message)
 
     def on_message(self, message) -> None:
@@ -79,37 +38,40 @@ class BanditClientInterface:
         Args:
             message (str): message received from the game server
         """
-        msg = json.loads(message)
+        type = int(message[0])
 
-        type = msg['type']
-        data = msg['data']
-        if self.debug: print('📥 RECEIVED:', type, data)
+        if self.debug: print('received:', type, message[2:])
 
-        if type == 'AWAIT_CASINO_INIT':
-            slot = self.casino_action_init(data['switch_budget'],
-                                           data['slot_count'],
-                                           data['player_wealth'])
-            self.send('SWITCH', slot)
-        elif type == 'AWAIT_CASINO':
-            slot = self.casino_action(data['switch_budget'],
-                                      data['slot_count'],
-                                      data['player_wealth'],
-                                      data['player_switched'])
-            self.send('SWITCH', slot)
+        if type == EVENT_TYPE.AWAIT_CASINO_INIT:
+            switch_budget, slot_count, player_wealth = map(
+                int, message[2:].split(" "))
 
-        elif type == 'AWAIT_PLAYER':
-            slot, stake = self.player_action(data['player_wealth'],
-                                             data['slot_count'],
-                                             data['pull_budget'])
+            slot = self.casino_action_init(switch_budget, slot_count,
+                                           player_wealth)
+            self.send(EVENT_TYPE.SWITCH, slot)
+        elif type == EVENT_TYPE.AWAIT_CASINO:
+            switch_budget, slot_count, player_wealth, player_switched = map(
+                int, message[2:].split(" "))
 
-            self.send('PULL', {"slot": slot, "stake": stake})
+            slot = self.casino_action(switch_budget, slot_count, player_wealth,
+                                      player_switched)
+            self.send(EVENT_TYPE.SWITCH, slot)
 
-        elif type == 'GAME_OVER':
-            print('🛑 GAME ENDED:', data)
+        elif type == EVENT_TYPE.AWAIT_PLAYER:
+
+            player_wealth, slot_count, pull_budget = map(
+                int, message[2:].split(" "))
+            slot, stake = self.player_action(player_wealth, slot_count,
+                                             pull_budget)
+
+            self.send(EVENT_TYPE.PULL, slot, stake)
+
+        elif type == EVENT_TYPE.GAME_OVER:
+            if self.debug: print('🛑 GAME ENDED')
             self.exit()
             os._exit(0)
 
-    def send(self, type, data) -> None:
+    def send(self, type, *data) -> None:
         """Sends a message to the game server; please do not override this method
 
         Args:
@@ -117,20 +79,19 @@ class BanditClientInterface:
             data (any): payload to send
         """
 
-        msg = {'type': type, 'data': data}
         if self.debug:
-            print('✈️  SENT:', type, data)
-
-        self.sock.send(json.dumps(msg).encode())
+            print('sending:',
+                  EVENT_TYPE.COMMAND_PREFIX,
+                  type,
+                  *data,
+                  sep=' ',
+                  end='\n')
+        print(EVENT_TYPE.COMMAND_PREFIX, type, *data, sep=' ', end='\n')
 
     def exit(self) -> None:
         """Exit handler for cleanup purposes; please do not override this method
         """
         if self.debug: print('Exiting Bandit Game Python 3 Client')
-        self.sock.close()
-        self.client_process.kill()
-        if os.path.exists(self.unix_socket_path):
-            os.remove(self.unix_socket_path)
 
     def casino_action_init(
         self,

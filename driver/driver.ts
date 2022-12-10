@@ -2,7 +2,7 @@ import { ArgumentDefaultsHelpFormatter, ArgumentParser } from 'argparse';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import * as Colyseus from 'colyseus.js';
 import { createInterface, Interface } from 'readline';
-import { MESSAGE, MESSAGE_INT, EndGameRequest } from '../server/types';
+import { EndGameRequest, MESSAGE, MESSAGE_INT } from '../server/types';
 
 export class Driver {
   name: string = 'stdio_driver';

@@ -1,4 +1,4 @@
-> 2022 Leaderboard can be found [here](Leaderboard.md)
+> 2022 Leaderboard can be found [here](docs/Leaderboard22.md)
 
 ## Table of Content
 
@@ -40,11 +40,11 @@
    npm install
    ```
 4. **Implement your client** in one of the supported languages (see [Client Usage](#client-usage) for the details)
-   | Language | Template | Version |
-   | -------- | ----------------------------------------------------------------- | ---------- |
-   | `C++` | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp) | C++17 |
-   | `Java` | [`clients_v2/java/Client.java`](clients_v2/java/Client.java) | Java 17 |
-   | `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) | Python 3.9 |
+    | Language | Template                                                    | Version    |
+    | -------- | ----------------------------------------------------------- | ---------- |
+    | `C++`    | [`clients/cpp/client.cpp`](clients/cpp/client.cpp)          | C++17      |
+    | `Java`   | [`clients/java/Client.java`](clients/java/Client.java)      | Java 17    |
+    | `Python` | [`clients/python/client.py`](clients/python/your_client.py) | Python 3.9 |
 
    You should compile it to an executable binary if needed.
 
@@ -59,7 +59,7 @@
 
 ## Driver Usage
 
-A [stdin/stdout-based driver](clients_v2/driver.ts) is provided to run your client. It will handle the communication with the server via websocket and proxy the messages to your client via stdin.
+A [stdin/stdout-based driver](clients/driver.ts) is provided to run your client. It will handle the communication with the server via websocket and proxy the messages to your client via stdin.
 
 ```sh
 node dist/driver/driver.js [-h] [-n NAME] [-r {pvp,vs_random_player,vs_random_casino}] [-p] [-j ROOM_ID] [-s SERVER] [-v] command
@@ -68,17 +68,17 @@ node dist/driver/driver.js [-h] [-n NAME] [-r {pvp,vs_random_player,vs_random_ca
 ### Example: PVE
 
 ```sh
-node dist/driver/driver.js "java clients_v2/java/Client.java" -n "Java Casino" -r vs_random_player
-node dist/driver/driver.js "python3 clients_v2/python/random_client.py" -n "Python Player" -r vs_random_casino
+node dist/driver/driver.js "java clients/java/Client.java" -n "Java Casino" -r vs_random_player
+node dist/driver/driver.js "python3 clients/python/random_client.py" -n "Python Player" -r vs_random_casino
 ```
 
 ### Example: Private PVP Room
 
 ```sh
-node dist/driver/driver.js "java clients_v2/java/Client.java" -n "Java Casino" -p
+node dist/driver/driver.js "java clients/java/Client.java" -n "Java Casino" -p
 # Output:
 # 🔵 DRIVER | ✅ Created private room fORyxMB85 (use "-j fORyxMB85" to join this room)
-node dist/driver/driver.js "python3 clients_v2/python/random_client.py" -n "Python Player" -j fORyxMB85
+node dist/driver/driver.js "python3 clients/python/random_client.py" -n "Python Player" -j fORyxMB85
 ```
 
 ### Example: Self-hosted Server & Verbose Output
@@ -106,13 +106,13 @@ optional arguments:
 
 ## Client Development
 
-Client templates are provided in the `clients_v2` directory. You can use these templates to implement your own client.
+Client templates are provided in the `clients` directory. You can use these templates to implement your own client.
 
-| Language | Template                                                          | Version    |
-| -------- | ----------------------------------------------------------------- | ---------- |
-| `C++`    | [`clients_v2/cpp/client.cpp`](clients_v2/cpp/client.cpp)          | C++17      |
-| `Java`   | [`clients_v2/java/Client.java`](clients_v2/java/Client.java)      | Java 17    |
-| `Python` | [`clients_v2/python/client.py`](clients_v2/python/your_client.py) | Python 3.9 |
+| Language | Template                                                    | Version    |
+| -------- | ----------------------------------------------------------- | ---------- |
+| `C++`    | [`clients/cpp/client.cpp`](clients/cpp/client.cpp)          | C++17      |
+| `Java`   | [`clients/java/Client.java`](clients/java/Client.java)      | Java 17    |
+| `Python` | [`clients/python/client.py`](clients/python/your_client.py) | Python 3.9 |
 
 Sorry that no Go template is provided as I don't have any experience with Go. If you are interested in contributing, please feel free to open a PR.
 
@@ -265,7 +265,7 @@ The second client connected to the server is assigned the role of **PLAYER** and
 
 - `server` - server source code
 - `clients` - proxy-based client templates (discontinued)
-- `clients_v2` - stdio-based client templates
+- `clients` - stdio-based client templates
 - `docs` - documentation resources
 - `test` - server unit tests, integration tests, and load tests
 - `dist` - transpiled code

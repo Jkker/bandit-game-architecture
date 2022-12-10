@@ -6,20 +6,20 @@ import {
   INIT_PLAYER_WEALTH,
   INIT_PULL_BUDGET,
   INIT_SWITCH_BUDGET,
+  MAX_PULL_STAKE,
   SLOT_COUNT,
   TIME_LIMIT,
   WIN_RATE,
-  MAX_PULL_STAKE,
 } from './config';
 
 import {
   CasinoActionRequest,
   CasinoActionResponse,
+  EndGameRequest,
+  getRandomInt,
   MESSAGE,
   PlayerActionRequest,
   PlayerActionResponse,
-  EndGameRequest,
-  getRandomInt,
 } from './types';
 
 class State extends Schema {

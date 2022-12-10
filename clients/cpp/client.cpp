@@ -1,3 +1,11 @@
+#define EVENT_TYPE_AWAIT_CASINO_INIT 0
+#define EVENT_TYPE_AWAIT_CASINO 1
+#define EVENT_TYPE_AWAIT_PLAYER 2
+#define EVENT_TYPE_GAME_OVER 3
+#define EVENT_TYPE_PULL 4
+#define EVENT_TYPE_SWITCH 5
+#define COMMAND_PREFIX "command:"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,95 +13,68 @@
 #include <sys/un.h>
 #include <sys/types.h>
 #include <string>
-
-// json library for modern cpp
-#include "json.hpp"
+#include <iostream>
 
 using namespace std;
-using json = nlohmann::json;
-
-// static const char *socket_path = "/tmp/bandit.sock";
-static const unsigned int s_recv_len = 4096;
-static const unsigned int s_send_len = 4096;
 
 class Client
 {
 public:
-	string socket_path;
 	string name;
 	string room;
-	int sock = 0;
-	int data_len = 0;
-	struct sockaddr_un remote;
-	char recv_msg[s_recv_len];
 
-	~Client();
-	Client(string name, string socket_path, string server_uri, string room);
+	~Client(){};
+	Client(){};
 
 	void start();
-	void send_data(string msg);
 
-	// TODO: User Defined Game Play Logic
-	int casino_action_init(int switch_budget, int slot_count, int player_wealth) { return 1; }
-	int casino_action(int switch_budget, int slot_count, int player_wealth, int player_switched) { return 0; }
-	pair<int, int> player_action(int player_wealth, int slot_count, int pull_budget) { return make_pair(0, 0); }
+	int casino_action_init(int switch_budget, int slot_count, int player_wealth);
+	int casino_action(int switch_budget, int slot_count, int player_wealth, int player_switched);
+	pair<int, int> player_action(int player_wealth, int slot_count, int pull_budget);
 };
 
-Client::Client(string name, string socket_path, string server_uri, string room)
+/* Called when the casino is initialized
 
-/*
- * Bandit Game C++ Client
- *
- * Args:
- * socket_path (str): path to a temp file for the unix domain socket.
- * name (str, optional): client name. Defaults to "python_client".
- * server_uri (str, optional): server uri.
- * room (str, optional): room type ("pvp", "vs_random_player", "vs_random_casino").
- *
- */
+Args:
+	-	`switch_budget` (int): number of remaining switches for the winning slot
+	-	`slot_count` (int): total number of slots
+	-	`player_wealth` (int): player's wealth
+
+Returns:
+	-	initial winning slot number in range [1, slot_count] */
+int Client::casino_action_init(int switch_budget, int slot_count, int player_wealth)
 {
-	this->name = name;
-	this->room = room;
-	this->socket_path = socket_path;
-
-	memset(recv_msg, 0, s_recv_len * sizeof(char));
-
-	if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
-	{
-		printf("CLIENT: Error on socket() call \n");
-		return;
-	}
-
-	remote.sun_family = AF_UNIX;
-	strcpy(remote.sun_path, this->socket_path.c_str());
-	data_len = strlen(remote.sun_path) + sizeof(remote.sun_family);
-
-	printf("CLIENT: Trying to connect... \n");
-	if (connect(sock, (struct sockaddr *)&remote, data_len) == -1)
-	{
-		printf("CLIENT: Error on connect call \n");
-		return;
-	}
-
-	printf("CLIENT: Connected \n");
-
-	this->send_data(json({{"type", "CONNECTED"}, {"data", {{"name", this->name}, {"server_uri", server_uri}, {"room", room}, {"debug", true}}}}).dump());
+	return 1;
 }
 
-Client::~Client()
-{
-	close(sock);
-}
-void Client::send_data(string msg)
-{
-	printf("CLIENT: Sending data %s \n", msg.c_str());
-	if (send(sock, msg.c_str(), strlen(msg.c_str()) * sizeof(char), 0) == -1)
-	{
-		printf("CLIENT: Error on send() call \n");
-	}
-	printf("CLIENT: Sent!\n");
+/* Called after the player has pulled the lever of a slot machine
 
-	return;
+Args:
+	-	`switch_budget` (int): number of remaining switches for the winning slot
+	-	`slot_count` (int): total number of slots
+	-	`player_wealth` (int): player's wealth
+	-	`player_switched` (int): whether the player switched to a different slot machine (1 if yes, 0 if no)
+
+Returns:
+	-	`0` if not switching OR winning slot number in range [1, slot_count] */
+int Client::casino_action(int switch_budget, int slot_count, int player_wealth, int player_switched)
+{
+	return 0;
+}
+
+/* Called when the player can pull the lever of a slot machine
+
+Args:
+	-	`player_wealth` (int) : player's wealth
+	-	`slot_count` (int) : total number of slots
+	-	`pull_budget` (int) : number of remaining pulls
+
+Returns:
+		`slot_number, bet_amount` where `slot_number` is in range[1, slot_count] and
+															bet_amount is in range[1, player_wealth] */
+pair<int, int> Client::player_action(int player_wealth, int slot_count, int pull_budget)
+{
+	return make_pair(0, 0);
 }
 
 void Client::start()
@@ -101,71 +82,61 @@ void Client::start()
  * Start the game loop
  */
 {
-	json response;
+	cout << "Starting game loop" << endl;
 
-	while (true)
+	while (1)
 	{
-		memset(recv_msg, 0, s_recv_len * sizeof(char));
+		string message;
+		getline(cin, message);
+		int type = stoi(strtok(&message[0], " "));
 
-		if ((data_len = recv(sock, recv_msg, s_recv_len, 0)) > 0)
+		switch (type)
 		{
-			printf("CLIENT: Data received: %s \n", recv_msg);
+		case EVENT_TYPE_AWAIT_CASINO_INIT:
+		{
+			int switch_budget = stoi(strtok(NULL, " "));
+			int slot_count = stoi(strtok(NULL, " "));
+			int player_wealth = stoi(strtok(NULL, " "));
 
-			response = json::parse(recv_msg);
-			string type = response["type"];
-			json data = response["data"];
+			int action = casino_action_init(switch_budget, slot_count, player_wealth);
 
-			if (response["type"] == "AWAIT_CASINO_INIT")
-			{
-				int init_slot = this->casino_action_init(data["switch_budget"], data["slot_count"], data["player_wealth"]);
-				this->send_data(json({{"type", "SWITCH"}, {"data", init_slot}}).dump());
-			}
-			else if (response["type"] == "AWAIT_CASINO")
-			{
-				int switch_slot = this->casino_action(data["switch_budget"], data["slot_count"], data["player_wealth"], data["player_switched"]);
-				this->send_data(json({{"type", "SWITCH"}, {"data", switch_slot}}).dump());
-			}
-			else if (response["type"] == "AWAIT_PLAYER")
-			{
-				pair<int, int> pull = this->player_action(data["player_wealth"], data["slot_count"], data["pull_budget"]);
-				this->send_data(json({{"type", "PULL"}, {"data", {
-																														 {"slot", pull.first},
-																														 {"stake", pull.second},
-																												 }}})
-														.dump());
-			}
-			else if (response["type"] == "GAME_OVER")
-			{
-				printf("CLIENT: GAME OVER \n");
-				// exit(0);
-				break;
-			}
+			cout << COMMAND_PREFIX << EVENT_TYPE_SWITCH << " " << action << endl;
+			break;
 		}
-		else
+		case EVENT_TYPE_AWAIT_CASINO:
 		{
-			if (data_len < 0)
-			{
-				printf("CLIENT: Error on recv() call \n");
-			}
-			else
-			{
-				printf("CLIENT: Proxy Server socket closed \n");
-				close(sock);
-				break;
-			}
+			int switch_budget = stoi(strtok(NULL, " "));
+			int slot_count = stoi(strtok(NULL, " "));
+			int player_wealth = stoi(strtok(NULL, " "));
+			int player_switched = stoi(strtok(NULL, " "));
+
+			int action = casino_action(switch_budget, slot_count, player_wealth, player_switched);
+			cout << COMMAND_PREFIX << EVENT_TYPE_SWITCH << " " << action << endl;
+			break;
+		}
+		case EVENT_TYPE_AWAIT_PLAYER:
+		{
+			int player_wealth = stoi(strtok(NULL, " "));
+			int slot_count = stoi(strtok(NULL, " "));
+			int pull_budget = stoi(strtok(NULL, " "));
+
+			pair<int, int> action = player_action(player_wealth, slot_count, pull_budget);
+			cout << COMMAND_PREFIX << EVENT_TYPE_PULL << " " << action.first << " " << action.second << endl;
+			break;
+		}
+		case EVENT_TYPE_GAME_OVER:
+		{
+			return;
+		}
+		default:
+			return;
 		}
 	}
 }
 
 int main()
 {
-	string name = "client";
-	string socket_path = "/tmp/bandit.sock";
-	string server_uri = "ws://localhost:22222";
-
-	// Room Types: "pvp", "vs_random_player", "vs_random_casino"
-	Client client(name, socket_path, server_uri, "vs_random_player");
-	client.start();
-
+	Client *client = new Client();
+	client->start();
 	return 0;
 }

@@ -6,8 +6,8 @@ from random import randint
 
 class RandomClient(BanditClientInterface):
 
-    def __init__(self, name="python_random_client", debug=False) -> None:
-        super().__init__(name, debug)
+    def __init__(self, debug=False) -> None:
+        super().__init__(debug)
 
     def casino_action_init(
         self,
@@ -76,6 +76,4 @@ class RandomClient(BanditClientInterface):
 
 if __name__ == '__main__':
     client = RandomClient(debug=True)
-
-	# Room Types: "pvp", "vs_random_player", "vs_random_casino"
-    client.start(room="vs_random_player")
+    client.start()
